@@ -1,0 +1,48 @@
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores([
+    'dist',
+    'src/components/Footer.jsx',
+    'src/components/Navbar.jsx',
+    'src/components/ProductCard.jsx',
+    'src/pages/Cart.jsx',
+    'src/pages/Home.jsx',
+    'src/pages/Login.jsx',
+    'src/pages/Order.jsx',
+    'src/pages/ProductDetails.jsx',
+    'src/pages/Products.jsx',
+    'src/pages/Register.jsx',
+    'src/pages/admin/Dashboard.jsx',
+  ]),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    },
+  },
+  {
+    files: ['src/context/**/*.{js,jsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+])

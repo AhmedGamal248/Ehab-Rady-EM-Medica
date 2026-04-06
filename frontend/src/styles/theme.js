@@ -1,0 +1,16 @@
+export const theme = {
+  primary: "#0077b6",
+  primaryDark: "#023e8a",
+  primaryLight: "#90e0ef",
+  secondary: "#00b4d8",
+  success: "#10b981",
+  warning: "#f59e0b",
+  danger: "#ef4444",
+  white: "#ffffff",
+  gray100: "#f8f9fa",
+  gray200: "#e9ecef",
+  gray300: "#dee2e6",
+  gray600: "#6c757d",
+  gray800: "#343a40",
+  text: "#212529",
+};

@@ -1,0 +1,320 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import {
+  MdAddShoppingCart,
+  MdChevronLeft,
+  MdChevronRight,
+  MdInventory2,
+  MdLocalShipping,
+  MdSecurity,
+  MdSupportAgent,
+  MdVerifiedUser,
+} from "react-icons/md";
+import api from "../services/api";
+import { useCart } from "../context/CartContext";
+import {
+  formatCurrency,
+  getProductImage,
+  handleProductImageError,
+} from "../utils/formatters";
+
+function getSingleProductPayload(response) {
+  return response.data?.data || response.data;
+}
+
+function getProductsPayload(response) {
+  return response.data?.data?.data || response.data?.data || response.data || [];
+}
+
+export default function ProductDetailsPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
+  const sliderRef = useRef(null);
+  const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [quantity, setQuantity] = useState(1);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function fetchProductDetails() {
+      try {
+        setLoading(true);
+        setError("");
+        setActiveImageIndex(0);
+
+        const productResponse = await api.get(`/products/${id}`);
+        const nextProduct = getSingleProductPayload(productResponse);
+
+        if (ignore) {
+          return;
+        }
+
+        setProduct(nextProduct);
+        setQuantity(1);
+
+        if (nextProduct?.category) {
+          const relatedResponse = await api.get(
+            `/products?category=${encodeURIComponent(nextProduct.category)}`
+          );
+
+          if (!ignore) {
+            const nextRelatedProducts = getProductsPayload(relatedResponse)
+              .filter((item) => item._id !== id)
+              .slice(0, 6);
+
+            setRelatedProducts(nextRelatedProducts);
+          }
+        } else {
+          setRelatedProducts([]);
+        }
+      } catch (requestError) {
+        if (!ignore) {
+          setError(
+            requestError.response?.data?.message || "تعذر تحميل بيانات المنتج."
+          );
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchProductDetails();
+
+    return () => {
+      ignore = true;
+    };
+  }, [id]);
+
+  const images = useMemo(() => {
+    if (!product) {
+      return [];
+    }
+
+    return [product.image, ...(product.images || [])].filter(Boolean);
+  }, [product]);
+
+  const handleAddToCart = () => {
+    addToCart(product, quantity);
+    toast.success(`تمت إضافة ${quantity} قطعة إلى السلة`);
+  };
+
+  const scrollSlider = (direction) => {
+    sliderRef.current?.scrollBy({
+      left: direction * 320,
+      behavior: "smooth",
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="page">
+        <div className="container section">
+          <div className="state-card">
+            <div className="spinner" />
+            <p>جاري تحميل تفاصيل المنتج...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="page">
+        <div className="container section">
+          <div className="state-card state-card--error">
+            <p>{error || "المنتج غير موجود."}</p>
+            <button className="button button--primary" onClick={() => navigate("/products")} type="button">
+              العودة للمنتجات
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page">
+      <div className="container breadcrumb">
+        <Link to="/">الرئيسية</Link>
+        <span>/</span>
+        <Link to="/products">المنتجات</Link>
+        <span>/</span>
+        <span>{product.name}</span>
+      </div>
+
+      <section className="container section product-details">
+        <div className="product-details__gallery">
+          <div className="product-details__main-image">
+            <img
+              alt={product.name}
+              onError={handleProductImageError}
+              src={images[activeImageIndex] || getProductImage(product)}
+            />
+            <span className="product-details__verified">
+              <MdVerifiedUser size={16} />
+              منتج موثوق
+            </span>
+            <span
+              className={`product-details__availability ${
+                product.stock > 0 ? "is-available" : "is-unavailable"
+              }`}
+            >
+              {product.stock > 0 ? `متاح (${product.stock} قطعة)` : "غير متاح"}
+            </span>
+          </div>
+
+          {images.length > 1 ? (
+            <div className="product-details__thumbnails">
+              {images.map((image, index) => (
+                <button
+                  className={`product-details__thumbnail ${
+                    activeImageIndex === index ? "is-active" : ""
+                  }`}
+                  key={image}
+                  onClick={() => setActiveImageIndex(index)}
+                  type="button"
+                >
+                  <img
+                    alt={`${product.name} ${index + 1}`}
+                    onError={handleProductImageError}
+                    src={image}
+                  />
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="product-details__content">
+          <span className="eyebrow">{product.category}</span>
+          <h1>{product.name}</h1>
+          <p className="product-details__description">{product.description}</p>
+
+          <div className="product-details__price-card">
+            <div>
+              <span>السعر النهائي</span>
+              <strong>{formatCurrency(product.price)}</strong>
+            </div>
+            <MdVerifiedUser size={32} />
+          </div>
+
+          <div className="product-details__quantity">
+            <span>الكمية</span>
+            <div>
+              <button
+                onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+                type="button"
+              >
+                -
+              </button>
+              <strong>{quantity}</strong>
+              <button
+                onClick={() =>
+                  setQuantity((value) => Math.min(product.stock || 1, value + 1))
+                }
+                type="button"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <button
+            className="button button--primary button--large"
+            disabled={product.stock <= 0}
+            onClick={handleAddToCart}
+            type="button"
+          >
+            <MdAddShoppingCart size={20} />
+            <span>
+              {product.stock <= 0
+                ? "المنتج غير متاح"
+                : `أضف إلى السلة - ${formatCurrency(product.price * quantity)}`}
+            </span>
+          </button>
+
+          <div className="feature-grid feature-grid--compact">
+            <article className="feature-card feature-card--compact">
+              <span className="feature-card__icon">
+                <MdLocalShipping size={20} />
+              </span>
+              <h3>شحن منظم</h3>
+              <p>معلومات واضحة عن حالة الطلب والتسليم.</p>
+            </article>
+            <article className="feature-card feature-card--compact">
+              <span className="feature-card__icon">
+                <MdSecurity size={20} />
+              </span>
+              <h3>ثقة أعلى</h3>
+              <p>أسعار ووصف منتج واضحان بدون عناصر مشتتة.</p>
+            </article>
+            <article className="feature-card feature-card--compact">
+              <span className="feature-card__icon">
+                <MdSupportAgent size={20} />
+              </span>
+              <h3>مساعدة سريعة</h3>
+              <p>سهولة التواصل والمتابعة أثناء الطلب.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {relatedProducts.length > 0 ? (
+        <section className="container section">
+          <div className="section-heading section-heading--inline">
+            <div>
+              <span className="eyebrow">منتجات مشابهة</span>
+              <h2>اكتشف المزيد من نفس الفئة</h2>
+            </div>
+            <div className="slider-actions">
+              <button onClick={() => scrollSlider(-1)} type="button">
+                <MdChevronRight size={20} />
+              </button>
+              <button onClick={() => scrollSlider(1)} type="button">
+                <MdChevronLeft size={20} />
+              </button>
+            </div>
+          </div>
+
+          <div className="related-products" ref={sliderRef}>
+            {relatedProducts.map((item) => (
+              <button
+                className="related-product"
+                key={item._id}
+                onClick={() => navigate(`/products/${item._id}`)}
+                type="button"
+              >
+                <img
+                  alt={item.name}
+                  onError={handleProductImageError}
+                  src={getProductImage(item)}
+                />
+                <div>
+                  <span className="eyebrow">{item.category}</span>
+                  <strong>{item.name}</strong>
+                  <small>{formatCurrency(item.price)}</small>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : (
+        <section className="container section">
+          <div className="state-card">
+            <MdInventory2 size={34} />
+            <p>لا توجد منتجات مشابهة معروضة حاليًا لهذه الفئة.</p>
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
