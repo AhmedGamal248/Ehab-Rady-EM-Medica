@@ -43,7 +43,7 @@ export default function SiteHeader() {
             <MdMedicalServices size={24} />
           </span>
           <span>
-            <strong className="brand__name">MedStore</strong>
+            <strong className="brand__name">EM Medica</strong>
             <span className="brand__tagline">متجر موثوق للمستلزمات الطبية</span>
           </span>
         </Link>
