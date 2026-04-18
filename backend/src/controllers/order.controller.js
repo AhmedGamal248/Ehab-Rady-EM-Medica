@@ -7,11 +7,13 @@ exports.createOrder = async (req, res, next) => {
     const quantityByProductId = new Map();
 
     req.body.items.forEach((item) => {
-      const currentQuantity = quantityByProductId.get(item.product) || 0;
-      quantityByProductId.set(item.product, currentQuantity + item.quantity);
+      const key = item.product.toString();
+      const currentQuantity = quantityByProductId.get(key) || 0;
+      quantityByProductId.set(key, currentQuantity + item.quantity);
     });
 
     const productIds = Array.from(quantityByProductId.keys());
+
     const products = await Product.find({ _id: { $in: productIds } })
       .select("name price stock image category")
       .lean();

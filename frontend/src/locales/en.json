@@ -1,0 +1,284 @@
+{
+  "common": {
+    "loadingPage": "Loading page...",
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart",
+    "browseProducts": "Browse Products",
+    "continueShopping": "Continue Shopping",
+    "orderSummary": "Order Summary",
+    "quantity": "Quantity",
+    "shipping": "Shipping",
+    "free": "Free",
+    "finalTotal": "Final Total",
+    "total": "Total",
+    "price": "Price",
+    "category": "Category",
+    "stock": "Stock",
+    "description": "Description",
+    "address": "Address",
+    "phone": "Phone",
+    "save": "Save",
+    "cancel": "Cancel",
+    "actions": "Actions",
+    "status": "Status",
+    "name": "Name",
+    "email": "Email",
+    "orderStatus": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    }
+  },
+  "header": {
+    "brandAlt": "EM Medica logo",
+    "brandTagline": "Trusted medical supplies store",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "cartCount": "{{count}} items in cart",
+    "dashboard": "Dashboard",
+    "switchToLightMode": "Switch to light mode",
+    "switchToDarkMode": "Switch to dark mode",
+    "switchToEnglish": "Switch to English",
+    "switchToArabic": "Switch to Arabic",
+    "englishLabel": "English",
+    "arabicLabel": "العربية",
+    "login": "Login",
+    "register": "Create Account",
+    "logout": "Logout"
+  },
+  "footer": {
+    "brandDescription": "A professional destination for medical supplies and equipment with a clear, secure shopping experience for clinics, centers, and patients.",
+    "quickLinksTitle": "Quick Links",
+    "categoriesTitle": "Popular Categories",
+    "contactTitle": "Contact Information",
+    "quickLinks": [
+      { "label": "Home", "to": "/" },
+      { "label": "Products", "to": "/products" },
+      { "label": "Cart", "to": "/cart" },
+      { "label": "Create Account", "to": "/register" }
+    ],
+    "categories": [
+      "Monitoring Devices",
+      "Surgical Tools",
+      "Nursing Supplies",
+      "Sterilization Supplies"
+    ],
+    "city": "Cairo, Egypt",
+    "workingHours": "Saturday to Thursday, 9:00 AM to 10:00 PM",
+    "copyright": "(c) {{year}} MedStore. All rights reserved.",
+    "privacy": "Clear privacy policy",
+    "support": "Fast support",
+    "delivery": "Reliable delivery"
+  },
+  "homePage": {
+    "heroTitle": "Clear and trusted medical products with a smooth, fast shopping experience",
+    "heroBrowseProducts": "Browse Products",
+    "heroCreateAccount": "Create New Account",
+    "pricingClarity": "Transparent pricing",
+    "readyToBuy": "Ready to buy",
+    "equipmentTitle": "Medical equipment and consumables",
+    "heroCategories": [
+      "Monitoring Devices",
+      "Sterilization",
+      "Surgery",
+      "Nursing"
+    ],
+    "metrics": [
+      { "value": "100+", "label": "Medical products" },
+      { "value": "10K+", "label": "Happy customers" },
+      { "value": "24/7", "label": "Support channels" },
+      { "value": "99%", "label": "Completed orders" }
+    ],
+    "whyEyebrow": "Why this refresh",
+    "whyTitle": "A clearer interface made for medical commerce",
+    "whyDescription": "We focused on contrast, readability, and reducing visual noise so important products and information stand out better.",
+    "trustHighlights": [
+      {
+        "title": "Trusted products",
+        "description": "Carefully selected products for clinics, pharmacies, and individual buyers."
+      },
+      {
+        "title": "Fast shipping",
+        "description": "Organized delivery inside Cairo with clear order tracking."
+      },
+      {
+        "title": "Specialized support",
+        "description": "A responsive team that helps you choose the right product for your needs."
+      }
+    ],
+    "ctaEyebrow": "Ready to start",
+    "ctaTitle": "Start browsing now and choose the right medical products with confidence",
+    "ctaButton": "View Catalog"
+  },
+  "productsPage": {
+    "heroEyebrow": "Medical catalog",
+    "heroTitle": "Browse medical products with ease and start from the right category",
+    "heroDescription": "Use search and filtering to quickly find the product you need with clearer cards and easier-to-scan details.",
+    "searchPlaceholder": "Search by product name or description",
+    "allCategories": "All categories",
+    "resultsEyebrow": "Search results",
+    "availableCount": "{{count}} products available",
+    "loading": "Loading products...",
+    "loadError": "Unable to load products right now.",
+    "empty": "No products match these filters."
+  },
+  "productCard": {
+    "addedSuccess": "Product added to cart",
+    "certified": "Certified",
+    "outOfStock": "Out of stock",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "addToCart": "Add to Cart"
+  },
+  "productDetailsPage": {
+    "loading": "Loading product details...",
+    "loadError": "Unable to load product details.",
+    "notFound": "Product not found.",
+    "backToProducts": "Back to Products",
+    "verified": "Trusted product",
+    "availableWithCount": "Available ({{count}} units)",
+    "unavailable": "Unavailable",
+    "finalPrice": "Final price",
+    "quantity": "Quantity",
+    "productUnavailable": "Product unavailable",
+    "addToCartTotal": "Add to cart - {{price}}",
+    "shippingTitle": "Organized shipping",
+    "shippingDescription": "Clear updates about order and delivery status.",
+    "trustTitle": "More confidence",
+    "trustDescription": "Clear pricing and product descriptions without distractions.",
+    "supportTitle": "Fast help",
+    "supportDescription": "Easy communication and follow-up during the order.",
+    "relatedEyebrow": "Related products",
+    "relatedTitle": "Discover more from the same category",
+    "noRelated": "No related products are currently available in this category.",
+    "addedSuccess": "{{count}} item(s) added to cart",
+    "thumbnailAlt": "{{name}} image {{index}}"
+  },
+  "cartPage": {
+    "emptyTitle": "Your cart is empty",
+    "emptyDescription": "Add some products first, then come back here to complete your order.",
+    "heroEyebrow": "Shopping cart",
+    "heroTitle": "Review your items before checkout",
+    "heroDescription": "Clearer details, easier quantity controls, and an instant summary of the final cost.",
+    "summaryTitle": "Order summary",
+    "itemsCount": "Items count",
+    "subtotal": "Subtotal",
+    "checkout": "Proceed to Checkout"
+  },
+  "loginPage": {
+    "success": "Logged in successfully",
+    "error": "Unable to sign in with these credentials.",
+    "introEyebrow": "Welcome back",
+    "introTitle": "Fast and clear sign in",
+    "introDescription": "We kept this page simple and visually comfortable so signing in is quick and distraction-free.",
+    "introPoints": [
+      "High-contrast, clear colors",
+      "Larger fields that feel better on mobile",
+      "Immediate success and error messages"
+    ],
+    "sectionEyebrow": "Login",
+    "sectionTitle": "Start here",
+    "emailLabel": "Email",
+    "emailPlaceholder": "name@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "********",
+    "loadingButton": "Signing in...",
+    "submitButton": "Login",
+    "footerText": "Don't have an account?",
+    "footerLink": "Create a new account"
+  },
+  "registerPage": {
+    "success": "Account created successfully",
+    "error": "Unable to create an account right now.",
+    "introEyebrow": "New account",
+    "introTitle": "A cleaner, clearer registration flow",
+    "introDescription": "We improved the page for mobile and large screens with stronger contrast and easier reading.",
+    "introPoints": [
+      "Shorter, easier-to-read fields",
+      "A polished experience in light and dark mode",
+      "Smarter redirects after registration"
+    ],
+    "sectionEyebrow": "Create account",
+    "sectionTitle": "Start shopping with confidence",
+    "nameLabel": "Name",
+    "namePlaceholder": "Full name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "name@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "loadingButton": "Creating account...",
+    "submitButton": "Create Account",
+    "footerText": "Already have an account?",
+    "footerLink": "Log in"
+  },
+  "orderPage": {
+    "emptyCartError": "Your cart is currently empty.",
+    "success": "Order confirmed successfully",
+    "error": "Unable to confirm your order right now.",
+    "eyebrow": "Checkout",
+    "title": "Complete your shipping details and review the final summary",
+    "addressLabel": "Shipping address",
+    "addressPlaceholder": "Enter the full shipping address",
+    "phoneLabel": "Phone number",
+    "phonePlaceholder": "+20 100 000 0000",
+    "loadingButton": "Confirming order...",
+    "submitButton": "Confirm Order",
+    "summaryTitle": "Cart summary",
+    "itemSummary": "{{name}} x {{quantity}}"
+  },
+  "adminDashboardPage": {
+    "eyebrow": "Admin dashboard",
+    "title": "Review products and orders from one place",
+    "stats": {
+      "products": "Products",
+      "orders": "Orders",
+      "newOrders": "New orders",
+      "totalSales": "Total sales"
+    },
+    "tabs": {
+      "products": "Products",
+      "orders": "Orders"
+    },
+    "openForm": "Add Product",
+    "closeForm": "Close Form",
+    "productName": "Product name",
+    "mainImage": "Main image",
+    "mainImageHelper": "Choose a clear image up to 5MB",
+    "extraImages": "Extra images",
+    "extraImagesHelper": "You can add up to five images",
+    "saveChanges": "Save Changes",
+    "addProduct": "Add Product",
+    "productUpdated": "Product updated",
+    "productAdded": "Product added",
+    "saveError": "Unable to save the product.",
+    "uploadMainSuccess": "Main image uploaded",
+    "uploadMainError": "Unable to upload the main image",
+    "uploadExtraSuccess": "Extra images uploaded",
+    "uploadExtraError": "Unable to upload extra images",
+    "deleteConfirm": "Do you want to delete this product?",
+    "productDeleted": "Product deleted",
+    "productDeleteError": "Unable to delete the product",
+    "delete": "Delete",
+    "mainImageAlt": "Main product image",
+    "extraImageAlt": "Extra image {{index}}",
+    "productTable": {
+      "product": "Product",
+      "category": "Category",
+      "price": "Price",
+      "stock": "Stock",
+      "actions": "Actions"
+    },
+    "ordersTable": {
+      "customer": "Customer",
+      "address": "Address",
+      "total": "Total",
+      "status": "Status",
+      "update": "Update"
+    },
+    "unknownCustomer": "Unknown",
+    "statusUpdated": "Order status updated",
+    "statusUpdateError": "Unable to update the order status"
+  }
+}

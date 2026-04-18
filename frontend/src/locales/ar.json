@@ -1,0 +1,284 @@
+{
+  "common": {
+    "loadingPage": "جاري تحميل الصفحة...",
+    "home": "الرئيسية",
+    "products": "المنتجات",
+    "cart": "السلة",
+    "browseProducts": "تصفح المنتجات",
+    "continueShopping": "متابعة التسوق",
+    "orderSummary": "ملخص الطلب",
+    "quantity": "الكمية",
+    "shipping": "الشحن",
+    "free": "مجاني",
+    "finalTotal": "الإجمالي النهائي",
+    "total": "الإجمالي",
+    "price": "السعر",
+    "category": "الفئة",
+    "stock": "المخزون",
+    "description": "الوصف",
+    "address": "العنوان",
+    "phone": "رقم الهاتف",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "actions": "إجراءات",
+    "status": "الحالة",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "orderStatus": {
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكد",
+      "delivered": "تم التسليم",
+      "cancelled": "ملغي"
+    }
+  },
+  "header": {
+    "brandAlt": "شعار EM Medica",
+    "brandTagline": "متجر موثوق للمستلزمات الطبية",
+    "openMenu": "فتح القائمة",
+    "closeMenu": "إغلاق القائمة",
+    "cartCount": "{{count}} عناصر في السلة",
+    "dashboard": "لوحة التحكم",
+    "switchToLightMode": "تفعيل الوضع الفاتح",
+    "switchToDarkMode": "تفعيل الوضع الداكن",
+    "switchToEnglish": "التبديل إلى الإنجليزية",
+    "switchToArabic": "التبديل إلى العربية",
+    "englishLabel": "English",
+    "arabicLabel": "العربية",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج"
+  },
+  "footer": {
+    "brandDescription": "منصة احترافية لبيع المستلزمات والأجهزة الطبية مع تجربة شراء واضحة وآمنة ومناسبة للعيادات والمراكز والمرضى.",
+    "quickLinksTitle": "روابط سريعة",
+    "categoriesTitle": "فئات شائعة",
+    "contactTitle": "معلومات التواصل",
+    "quickLinks": [
+      { "label": "الرئيسية", "to": "/" },
+      { "label": "المنتجات", "to": "/products" },
+      { "label": "السلة", "to": "/cart" },
+      { "label": "إنشاء حساب", "to": "/register" }
+    ],
+    "categories": [
+      "أجهزة قياس",
+      "أدوات جراحية",
+      "مستلزمات تمريض",
+      "مستلزمات تعقيم"
+    ],
+    "city": "القاهرة، مصر",
+    "workingHours": "السبت إلى الخميس، 9 صباحًا حتى 10 مساءً",
+    "copyright": "(c) {{year}} MedStore. جميع الحقوق محفوظة.",
+    "privacy": "سياسة خصوصية واضحة",
+    "support": "دعم سريع",
+    "delivery": "توصيل موثوق"
+  },
+  "homePage": {
+    "heroTitle": "منتجات طبية واضحة وموثوقة بتجربة شراء مريحة وسريعة",
+    "heroBrowseProducts": "تصفح المنتجات",
+    "heroCreateAccount": "إنشاء حساب جديد",
+    "pricingClarity": "وضوح في الأسعار",
+    "readyToBuy": "جاهز للشراء",
+    "equipmentTitle": "معدات واستهلاكات طبية",
+    "heroCategories": [
+      "أجهزة قياس",
+      "تعقيم",
+      "جراحة",
+      "تمريض"
+    ],
+    "metrics": [
+      { "value": "100+", "label": "منتج طبي" },
+      { "value": "10K+", "label": "عميل راضٍ" },
+      { "value": "24/7", "label": "قنوات دعم" },
+      { "value": "99%", "label": "طلبات مكتملة" }
+    ],
+    "whyEyebrow": "لماذا التحديث الجديد",
+    "whyTitle": "واجهة أكثر وضوحًا وملاءمة للمتجر الطبي",
+    "whyDescription": "ركزنا على التباين، سهولة القراءة، وتقليل الفوضى البصرية حتى تظهر المنتجات والمعلومات المهمة بشكل أفضل.",
+    "trustHighlights": [
+      {
+        "title": "منتجات موثوقة",
+        "description": "منتجات مختارة بعناية لعيادات، صيدليات، ومستخدمين أفراد."
+      },
+      {
+        "title": "شحن سريع",
+        "description": "توصيل منظم داخل القاهرة مع متابعة واضحة للطلبات."
+      },
+      {
+        "title": "دعم متخصص",
+        "description": "فريق يرد بسرعة ويساعدك على اختيار المنتج الأنسب لاحتياجك."
+      }
+    ],
+    "ctaEyebrow": "جاهز للانطلاق",
+    "ctaTitle": "ابدأ التصفح الآن واختر ما يناسب احتياجك الطبي بثقة",
+    "ctaButton": "مشاهدة الكتالوج"
+  },
+  "productsPage": {
+    "heroEyebrow": "الكتالوج الطبي",
+    "heroTitle": "تصفح المنتجات الطبية بسهولة وابدأ من الفئة المناسبة",
+    "heroDescription": "استخدم البحث والتصفية للوصول بسرعة إلى المنتج المطلوب مع بطاقات أوضح ومعلومات أسهل في المسح.",
+    "searchPlaceholder": "ابحث باسم المنتج أو الوصف",
+    "allCategories": "كل الفئات",
+    "resultsEyebrow": "نتائج البحث",
+    "availableCount": "{{count}} منتج متاح",
+    "loading": "جاري تحميل المنتجات...",
+    "loadError": "تعذر تحميل المنتجات حاليًا.",
+    "empty": "لم نجد منتجات تطابق هذه المعايير."
+  },
+  "productCard": {
+    "addedSuccess": "تمت إضافة المنتج إلى السلة",
+    "certified": "معتمد",
+    "outOfStock": "نفد المخزون",
+    "available": "متاح",
+    "unavailable": "غير متاح",
+    "addToCart": "أضف للسلة"
+  },
+  "productDetailsPage": {
+    "loading": "جاري تحميل تفاصيل المنتج...",
+    "loadError": "تعذر تحميل بيانات المنتج.",
+    "notFound": "المنتج غير موجود.",
+    "backToProducts": "العودة للمنتجات",
+    "verified": "منتج موثوق",
+    "availableWithCount": "متاح ({{count}} قطعة)",
+    "unavailable": "غير متاح",
+    "finalPrice": "السعر النهائي",
+    "quantity": "الكمية",
+    "productUnavailable": "المنتج غير متاح",
+    "addToCartTotal": "أضف إلى السلة - {{price}}",
+    "shippingTitle": "شحن منظم",
+    "shippingDescription": "معلومات واضحة عن حالة الطلب والتسليم.",
+    "trustTitle": "ثقة أعلى",
+    "trustDescription": "أسعار ووصف منتج واضحان بدون عناصر مشتتة.",
+    "supportTitle": "مساعدة سريعة",
+    "supportDescription": "سهولة التواصل والمتابعة أثناء الطلب.",
+    "relatedEyebrow": "منتجات مشابهة",
+    "relatedTitle": "اكتشف المزيد من نفس الفئة",
+    "noRelated": "لا توجد منتجات مشابهة معروضة حاليًا لهذه الفئة.",
+    "addedSuccess": "تمت إضافة {{count}} قطعة إلى السلة",
+    "thumbnailAlt": "{{name}} صورة {{index}}"
+  },
+  "cartPage": {
+    "emptyTitle": "السلة فارغة",
+    "emptyDescription": "أضف بعض المنتجات أولًا ثم ارجع هنا لإكمال الطلب.",
+    "heroEyebrow": "سلة الشراء",
+    "heroTitle": "راجع المنتجات قبل إتمام الطلب",
+    "heroDescription": "تفاصيل أوضح، تحكم أسهل في الكميات، وملخص فوري للتكلفة النهائية.",
+    "summaryTitle": "ملخص الطلب",
+    "itemsCount": "عدد القطع",
+    "subtotal": "الإجمالي الفرعي",
+    "checkout": "إتمام الطلب"
+  },
+  "loginPage": {
+    "success": "تم تسجيل الدخول بنجاح",
+    "error": "تعذر تسجيل الدخول بهذه البيانات.",
+    "introEyebrow": "أهلًا بك مجددًا",
+    "introTitle": "تسجيل دخول سريع وواضح",
+    "introDescription": "أبقينا الصفحة بسيطة ومريحة بصريًا حتى تتم عملية الدخول بسرعة وبدون تشتيت.",
+    "introPoints": [
+      "ألوان متباينة وواضحة",
+      "حقول أكبر وأسهل على الجوال",
+      "رسائل خطأ ونجاح مباشرة"
+    ],
+    "sectionEyebrow": "تسجيل الدخول",
+    "sectionTitle": "ابدأ من هنا",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "name@example.com",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "********",
+    "loadingButton": "جاري تسجيل الدخول...",
+    "submitButton": "تسجيل الدخول",
+    "footerText": "لا تملك حسابًا؟",
+    "footerLink": "أنشئ حسابًا جديدًا"
+  },
+  "registerPage": {
+    "success": "تم إنشاء الحساب بنجاح",
+    "error": "تعذر إنشاء الحساب حاليًا.",
+    "introEyebrow": "حساب جديد",
+    "introTitle": "واجهة تسجيل أنظف وأكثر وضوحًا",
+    "introDescription": "حسّنا الصفحة لتكون مناسبة للمستخدمين على الهواتف والشاشات الكبيرة مع تباين قوي ونصوص أوضح.",
+    "introPoints": [
+      "حقول أقصر وأسهل في الفهم",
+      "تجربة مناسبة للوضعين الفاتح والداكن",
+      "توجيه تلقائي ذكي بعد التسجيل"
+    ],
+    "sectionEyebrow": "إنشاء حساب",
+    "sectionTitle": "ابدأ الشراء بثقة",
+    "nameLabel": "الاسم",
+    "namePlaceholder": "الاسم الكامل",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "name@example.com",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "8 أحرف على الأقل",
+    "loadingButton": "جاري إنشاء الحساب...",
+    "submitButton": "إنشاء الحساب",
+    "footerText": "لديك حساب بالفعل؟",
+    "footerLink": "سجل الدخول"
+  },
+  "orderPage": {
+    "emptyCartError": "السلة فارغة حاليًا.",
+    "success": "تم تأكيد الطلب بنجاح",
+    "error": "تعذر تأكيد الطلب حاليًا.",
+    "eyebrow": "إتمام الطلب",
+    "title": "أكمل بيانات الشحن وراجع الملخص النهائي",
+    "addressLabel": "عنوان الشحن",
+    "addressPlaceholder": "اكتب العنوان بالتفصيل",
+    "phoneLabel": "رقم الهاتف",
+    "phonePlaceholder": "+20 100 000 0000",
+    "loadingButton": "جاري تأكيد الطلب...",
+    "submitButton": "تأكيد الطلب",
+    "summaryTitle": "ملخص السلة",
+    "itemSummary": "{{name}} x {{quantity}}"
+  },
+  "adminDashboardPage": {
+    "eyebrow": "لوحة الإدارة",
+    "title": "مراجعة المنتجات والطلبات من مكان واحد",
+    "stats": {
+      "products": "المنتجات",
+      "orders": "الطلبات",
+      "newOrders": "طلبات جديدة",
+      "totalSales": "إجمالي المبيعات"
+    },
+    "tabs": {
+      "products": "المنتجات",
+      "orders": "الطلبات"
+    },
+    "openForm": "إضافة منتج",
+    "closeForm": "إغلاق النموذج",
+    "productName": "اسم المنتج",
+    "mainImage": "الصورة الرئيسية",
+    "mainImageHelper": "اختر صورة واضحة بحد أقصى 5MB",
+    "extraImages": "صور إضافية",
+    "extraImagesHelper": "يمكنك إضافة حتى خمس صور",
+    "saveChanges": "حفظ التعديلات",
+    "addProduct": "إضافة المنتج",
+    "productUpdated": "تم تحديث المنتج",
+    "productAdded": "تمت إضافة المنتج",
+    "saveError": "تعذر حفظ المنتج.",
+    "uploadMainSuccess": "تم رفع الصورة الرئيسية",
+    "uploadMainError": "تعذر رفع الصورة الرئيسية",
+    "uploadExtraSuccess": "تم رفع الصور الإضافية",
+    "uploadExtraError": "تعذر رفع الصور الإضافية",
+    "deleteConfirm": "هل تريد حذف هذا المنتج؟",
+    "productDeleted": "تم حذف المنتج",
+    "productDeleteError": "تعذر حذف المنتج",
+    "delete": "حذف",
+    "mainImageAlt": "الصورة الرئيسية للمنتج",
+    "extraImageAlt": "صورة إضافية {{index}}",
+    "productTable": {
+      "product": "المنتج",
+      "category": "الفئة",
+      "price": "السعر",
+      "stock": "المخزون",
+      "actions": "إجراءات"
+    },
+    "ordersTable": {
+      "customer": "العميل",
+      "address": "العنوان",
+      "total": "الإجمالي",
+      "status": "الحالة",
+      "update": "التحديث"
+    },
+    "unknownCustomer": "غير معروف",
+    "statusUpdated": "تم تحديث حالة الطلب",
+    "statusUpdateError": "تعذر تحديث حالة الطلب"
+  }
+}
