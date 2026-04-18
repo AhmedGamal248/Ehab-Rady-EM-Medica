@@ -40,7 +40,7 @@ export default function SiteHeader() {
       <div className="container site-header__inner">
         <Link className="brand" to="/">
           <span className="brand__mark">
-            <MdMedicalServices size={24} />
+            <img alt="شعار EM Medica" className="brand__logo" src="/web-logo.png" />  
           </span>
           <span>
             <strong className="brand__name">EM Medica</strong>

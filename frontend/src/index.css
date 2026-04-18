@@ -281,13 +281,17 @@ a:focus-visible {
 
 .brand__mark {
   align-items: center;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   border-radius: 18px;
   color: #fff;
   display: inline-flex;
-  height: 52px;
+  height: 80px;
   justify-content: center;
-  width: 52px;
+  width: 80px;
+}
+
+.brand__mark img {
+  height: 100%;
+  width: 100%;
 }
 
 .brand__name {
