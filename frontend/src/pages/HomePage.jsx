@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
   MdLocalShipping,
@@ -6,32 +7,18 @@ import {
   MdSupportAgent,
 } from "react-icons/md";
 
-const trustHighlights = [
-  {
-    title: "منتجات موثوقة",
-    description: "منتجات مختارة بعناية لعيادات، صيدليات، ومستخدمين أفراد.",
-    icon: <MdOutlineFactCheck size={24} />,
-  },
-  {
-    title: "شحن سريع",
-    description: "توصيل منظم داخل القاهرة  مع متابعة واضحة للطلبات.",
-    icon: <MdLocalShipping size={24} />,
-  },
-  {
-    title: "دعم متخصص",
-    description: "فريق يرد بسرعة ويساعدك على اختيار المنتج الأنسب لاحتياجك.",
-    icon: <MdSupportAgent size={24} />,
-  },
-];
-
-const metrics = [
-  { value: "100+", label: "منتج طبي" },
-  { value: "10K+", label: "عميل راضٍ" },
-  { value: "24/7", label: "قنوات دعم" },
-  { value: "99%", label: "طلبات مكتملة" },
+const trustIcons = [
+  <MdOutlineFactCheck key="fact-check" size={24} />,
+  <MdLocalShipping key="shipping" size={24} />,
+  <MdSupportAgent key="support" size={24} />,
 ];
 
 export default function HomePage() {
+  const { t } = useTranslation();
+  const trustHighlights = t("homePage.trustHighlights", { returnObjects: true });
+  const metrics = t("homePage.metrics", { returnObjects: true });
+  const heroCategories = t("homePage.heroCategories", { returnObjects: true });
+
   return (
     <div className="page page--home">
       <section className="hero-section">
@@ -40,38 +27,35 @@ export default function HomePage() {
             <span className="eyebrow eyebrow--solid">
               <MdMedicalServices size={16} />
             </span>
-            <h1>منتجات طبية واضحة وموثوقة بتجربة شراء مريحة وسريعة</h1>
-            
+            <h1>{t("homePage.heroTitle")}</h1>
+
             <div className="hero-section__actions">
               <Link className="button button--primary button--large" to="/products">
-                تصفح المنتجات
+                {t("homePage.heroBrowseProducts")}
               </Link>
               <Link className="button button--secondary button--large" to="/register">
-                إنشاء حساب جديد
+                {t("homePage.heroCreateAccount")}
               </Link>
             </div>
             <div className="hero-section__trust-row">
-              <span>وضوح في الأسعار</span>
-      
+              <span>{t("homePage.pricingClarity")}</span>
             </div>
           </div>
 
           <div className="hero-section__panel">
             <div className="hero-panel">
               <div className="hero-panel__top">
-                <span className="eyebrow">جاهز للشراء</span>
-                <strong>معدات واستهلاكات طبية</strong>
+                <span className="eyebrow">{t("homePage.readyToBuy")}</span>
+                <strong>{t("homePage.equipmentTitle")}</strong>
               </div>
               <div className="hero-panel__grid">
-                {["أجهزة قياس", "تعقيم", "جراحة", "تمريض"].map((item) => (
+                {heroCategories.map((item) => (
                   <div key={item} className="hero-panel__chip">
                     {item}
                   </div>
                 ))}
               </div>
-              <div className="hero-panel__note">
-               
-              </div>
+              <div className="hero-panel__note" />
             </div>
           </div>
         </div>
@@ -90,18 +74,15 @@ export default function HomePage() {
 
       <section className="container section">
         <div className="section-heading">
-          <span className="eyebrow">لماذا التحديث الجديد</span>
-          <h2>واجهة أكثر وضوحًا وملائمة للمتجر الطبي</h2>
-          <p>
-            ركزنا على التباين، سهولة القراءة، وتقليل الفوضى البصرية حتى تظهر
-            المنتجات والمعلومات المهمة بشكل أفضل.
-          </p>
+          <span className="eyebrow">{t("homePage.whyEyebrow")}</span>
+          <h2>{t("homePage.whyTitle")}</h2>
+          <p>{t("homePage.whyDescription")}</p>
         </div>
 
         <div className="feature-grid">
-          {trustHighlights.map((item) => (
+          {trustHighlights.map((item, index) => (
             <article key={item.title} className="feature-card">
-              <span className="feature-card__icon">{item.icon}</span>
+              <span className="feature-card__icon">{trustIcons[index]}</span>
               <h3>{item.title}</h3>
               <p>{item.description}</p>
             </article>
@@ -112,11 +93,11 @@ export default function HomePage() {
       <section className="container section">
         <div className="cta-banner">
           <div>
-            <span className="eyebrow eyebrow--solid">جاهز للانطلاق</span>
-            <h2>ابدأ التصفح الآن واختر ما يناسب احتياجك الطبي بثقة</h2>
+            <span className="eyebrow eyebrow--solid">{t("homePage.ctaEyebrow")}</span>
+            <h2>{t("homePage.ctaTitle")}</h2>
           </div>
           <Link className="button button--primary" to="/products">
-            مشاهدة الكتالوج
+            {t("homePage.ctaButton")}
           </Link>
         </div>
       </section>

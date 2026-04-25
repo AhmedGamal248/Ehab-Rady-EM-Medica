@@ -1,0 +1,109 @@
+- order page 
+لكل منتج كذا لون المستخدم يختار منهم
+
+
+
+صفحة لكل اوردر بالتفاصيل بتاعته
+
+
+
+front
+
+name " EM Medica
+
+
+
+
+أنت مهندس full-stack خبير. مهمتك تنفيذ 7 مهام على مشروع React + Express + MongoDB.
+نفّذ كل مهمة بالكامل قبل ما تنتقل للتالية، واعرض الكود الكامل لكل ملف بتعدله.
+
+══════════════════════════════════════
+المهمة 1 — دعم اللغتين (عربي / إنجليزي) i18n
+══════════════════════════════════════
+
+المطلوب:
+- استخدم مكتبة i18next + react-i18next
+- أنشئ ملفين: src/locales/ar.json و src/locales/en.json
+- اللغة الافتراضية: العربية (ar) مع اتجاه RTL
+- لما اللغة عربي: document.dir = "rtl" | لما إنجليزي: document.dir = "ltr"
+- أضف زرار تبديل لغة في SiteHeader.jsx يحفظ الاختيار في localStorage
+- ترجم كل النصوص الثابتة في:
+  SiteHeader, SiteFooter, HomePage, ProductsPage,
+  ProductDetailsPage, CartPage, LoginPage, RegisterPage,
+  OrderPage, AdminDashboardPage
+________________________________________________________________
+المهمة 2 — عرض الأوردرات بالتفصيل في Dashboard 
+══════════════════════════════════════
+
+المطلوب في Frontend (AdminDashboardPage.jsx):
+- جدول الأوردرات يعرض الأعمدة دي:
+  رقم الطلب (#id مختصر) | اسم العميل | المنتجات (اسم + كمية) |
+  إجمالي السعر | الحالة (pending/confirmed/delivered) |
+  تاريخ الطلب | زرار "عرض التفاصيل"
+- الحالة تظهر كـ badge ملوّن:
+  pending = أصفر | confirmed = أزرق | delivered = أخضر
+
+المطلوب في Backend (order.controller.js):
+- في دالة getAllOrders: استخدم .populate("user", "name email")
+  و .populate("items.product", "name price image")
+- رتّب الأوردرات من الأحدث للأقدم (sort: -1)
+
+══════════════════════════════════════
+المهمة 3 — صفحة تفاصيل الأوردر للأدمن 
+══════════════════════════════════════
+
+المطلوب في Frontend:
+- أنشئ ملف جديد: src/pages/admin/OrderDetailsPage.jsx
+- أضف المسار في App.jsx:
+  <Route path="/admin/orders/:id" element={<ProtectedRoute adminOnly><OrderDetailsPage /></ProtectedRoute>} />
+- الصفحة تعرض:
+  * معلومات العميل: الاسم، الإيميل، رقم الهاتف
+  * قائمة المنتجات: صورة + اسم + لون مختار + كمية + سعر الوحدة + إجمالي السطر
+  * ملخص: إجمالي الطلب
+  * الحالة الحالية مع dropdown لتغييرها
+  * تاريخ ومعرّف الطلب
+- زرار "حفظ التغييرات" يرسل PATCH /api/orders/:id/status
+- زرار "رجوع للداشبورد"
+
+المطلوب في Backend:
+- أضف route: PATCH /api/orders/:id/status (admin only)
+- الـ controller يقبل { status } ويحدّث الطلب ويرجّع الطلب المحدّث
+- أضف route: GET /api/orders/:id (admin only) يرجّع طلب واحد
+  مع populate كامل للمستخدم والمنتجات
+
+══════════════════════════════════════
+المهمة 4 — نظام ألوان المنتج 
+══════════════════════════════════════
+
+المطلوب في Backend:
+- عدّل product.model.js: أضف حقل
+  colors: [{ name: String, hex: String }]  (default: [])
+- عدّل product.controller.js:
+  * createProduct و updateProduct يقبلوا ويحفظوا الـ colors
+- عدّل validation/schemas.js:
+  * أضف colors للـ product schema (optional array)
+
+المطلوب في Frontend — AdminDashboardPage.jsx:
+- في فورم إضافة/تعديل منتج أضف:
+  * زرار "إضافة لون" يفتح حقلين: اسم اللون + color picker (input type="color")
+  * عرض الألوان المضافة كـ chips قابلة للحذف
+  * الألوان تتبعت مع باقي بيانات المنتج
+
+المطلوب في Frontend — ProductDetailsPage.jsx:
+- لو المنتج عنده colors.length > 0:
+  * اعرض قسم "اختر اللون" تحت صورة المنتج
+  * كل لون يظهر كـ دائرة ملونة (background: hex) مع tooltip باسمه
+  * اللون المختار يكون عليه border واضح
+  * اللون المختار يتحفظ في الـ cart item
+
+المطلوب في Frontend — CartPage.jsx:
+- لو الـ item عنده لون مختار، اعرضه جنب اسم المنتج كـ badge صغير
+
+══════════════════════════════════════
+قواعد عامة للتنفيذ:
+══════════════════════════════════════
+- اعرض الكود الكامل لكل ملف بتعدله (مش snippets)
+- رتّب الملفات: backend الأول، frontend التاني
+- لو في تعارض بين مهمتين، أخبرني قبل التنفيذ
+- في الآخر: اعمل ملخص بكل الملفات اللي اتغيرت
+ 

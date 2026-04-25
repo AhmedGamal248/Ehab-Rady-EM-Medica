@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
   MdAccessTimeFilled,
@@ -7,21 +8,11 @@ import {
   MdPlace,
 } from "react-icons/md";
 
-const quickLinks = [
-  { label: "الرئيسية", to: "/" },
-  { label: "المنتجات", to: "/products" },
-  { label: "السلة", to: "/cart" },
-  { label: "إنشاء حساب", to: "/register" },
-];
-
-const categories = [
-  "أجهزة قياس",
-  "أدوات جراحية",
-  "مستلزمات تمريض",
-  "مستلزمات تعقيم",
-];
-
 export default function SiteFooter() {
+  const { t } = useTranslation();
+  const categories = t("footer.categories", { returnObjects: true });
+  const year = new Date().getFullYear();
+
   return (
     <footer className="site-footer">
       <div className="container site-footer__grid">
@@ -30,27 +21,13 @@ export default function SiteFooter() {
             <MdMedicalServices size={22} />
           </span>
           <div>
-            <h2>MedStore</h2>
-            <p>
-              منصة احترافية لبيع المستلزمات والأجهزة الطبية مع تجربة شراء واضحة
-              وآمنة ومناسبة للعيادات والمراكز والمرضى.
-            </p>
+            <h2>EM Medica</h2>
+            <p>{t("footer.brandDescription")}</p>
           </div>
         </div>
 
         <div>
-          <h3 className="site-footer__title">روابط سريعة</h3>
-          <div className="site-footer__links">
-            {quickLinks.map((link) => (
-              <Link key={link.to} to={link.to}>
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <h3 className="site-footer__title">فئات شائعة</h3>
+          <h3 className="site-footer__title">{t("footer.categoriesTitle")}</h3>
           <div className="site-footer__links">
             {categories.map((category) => (
               <Link key={category} to="/products">
@@ -61,7 +38,7 @@ export default function SiteFooter() {
         </div>
 
         <div>
-          <h3 className="site-footer__title">معلومات التواصل</h3>
+          <h3 className="site-footer__title">{t("footer.contactTitle")}</h3>
           <div className="site-footer__contact">
             <p>
               <MdPhoneInTalk size={18} />
@@ -73,22 +50,22 @@ export default function SiteFooter() {
             </p>
             <p>
               <MdPlace size={18} />
-              <span>القاهرة، مصر</span>
+              <span>{t("footer.city")}</span>
             </p>
             <p>
               <MdAccessTimeFilled size={18} />
-              <span>السبت إلى الخميس، 9 صباحًا حتى 10 مساءً</span>
+              <span>{t("footer.workingHours")}</span>
             </p>
           </div>
         </div>
       </div>
 
       <div className="container site-footer__bottom">
-        <p>© 2026 MedStore. جميع الحقوق محفوظة.</p>
+        <p>{t("footer.copyright", { year })}</p>
         <div className="site-footer__meta">
-          <span>سياسة خصوصية واضحة</span>
-          <span>دعم سريع</span>
-          <span>توصيل موثوق</span>
+          <span>{t("footer.privacy")}</span>
+          <span>{t("footer.support")}</span>
+          <span>{t("footer.delivery")}</span>
         </div>
       </div>
     </footer>

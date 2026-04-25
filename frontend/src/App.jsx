@@ -1,4 +1,5 @@
 import { Suspense, lazy } from "react";
+import { useTranslation } from "react-i18next";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext";
@@ -19,12 +20,14 @@ const OrderPage = lazy(() => import("./pages/OrderPage"));
 const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
 
 function RouteFallback() {
+  const { t } = useTranslation();
+
   return (
     <div className="page">
       <div className="container section">
         <div className="state-card">
           <div className="spinner" />
-          <p>جاري تحميل الصفحة...</p>
+          <p>{t("common.loadingPage")}</p>
         </div>
       </div>
     </div>

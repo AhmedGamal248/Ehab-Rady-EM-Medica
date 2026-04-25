@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import {
   MdAdd,
@@ -33,6 +34,7 @@ const initialForm = {
 };
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("products");
@@ -44,45 +46,70 @@ export default function AdminDashboardPage() {
   const stats = useMemo(
     () => [
       {
-        label: "المنتجات",
+        label: t("adminDashboardPage.stats.products"),
         value: products.length,
         icon: <MdInventory2 size={24} />,
       },
       {
-        label: "الطلبات",
+        label: t("adminDashboardPage.stats.orders"),
         value: orders.length,
         icon: <MdLocalMall size={24} />,
       },
       {
-        label: "طلبات جديدة",
+        label: t("adminDashboardPage.stats.newOrders"),
         value: orders.filter((order) => order.status === "pending").length,
         icon: <MdPendingActions size={24} />,
       },
       {
-        label: "إجمالي المبيعات",
+        label: t("adminDashboardPage.stats.totalSales"),
         value: formatCurrency(
           orders.reduce((sum, order) => sum + Number(order.total || 0), 0)
         ),
         icon: <MdOutlinePayments size={24} />,
       },
     ],
-    [orders, products.length]
+    [orders, products.length, t]
   );
-
-  useEffect(() => {
-    fetchProducts();
-    fetchOrders();
-  }, []);
 
   const fetchProducts = async () => {
     const response = await api.get("/products");
-    setProducts(getProductsPayload(response));
+    return getProductsPayload(response);
   };
 
   const fetchOrders = async () => {
     const response = await api.get("/orders");
-    setOrders(getOrdersPayload(response));
+    return getOrdersPayload(response);
   };
+
+  useEffect(() => {
+    let ignore = false;
+
+    const loadDashboard = async () => {
+      try {
+        const [nextProducts, nextOrders] = await Promise.all([
+          fetchProducts(),
+          fetchOrders(),
+        ]);
+
+        if (ignore) {
+          return;
+        }
+
+        setProducts(nextProducts);
+        setOrders(nextOrders);
+      } catch {
+        if (!ignore) {
+          toast.error(t("adminDashboardPage.loadError"));
+        }
+      }
+    };
+
+    void loadDashboard();
+
+    return () => {
+      ignore = true;
+    };
+  }, [t]);
 
   const resetForm = () => {
     setForm(initialForm);
@@ -108,9 +135,9 @@ export default function AdminDashboardPage() {
         ...currentValue,
         image: response.data?.data?.url || response.data?.url || "",
       }));
-      toast.success("تم رفع الصورة الرئيسية");
+      toast.success(t("adminDashboardPage.uploadMainSuccess"));
     } catch {
-      toast.error("تعذر رفع الصورة الرئيسية");
+      toast.error(t("adminDashboardPage.uploadMainError"));
     } finally {
       setUploading(false);
     }
@@ -135,9 +162,9 @@ export default function AdminDashboardPage() {
         ...currentValue,
         images: [...currentValue.images, ...nextUrls].slice(0, 5),
       }));
-      toast.success("تم رفع الصور الإضافية");
+      toast.success(t("adminDashboardPage.uploadExtraSuccess"));
     } catch {
-      toast.error("تعذر رفع الصور الإضافية");
+      toast.error(t("adminDashboardPage.uploadExtraError"));
     } finally {
       setUploading(false);
     }
@@ -155,16 +182,16 @@ export default function AdminDashboardPage() {
     try {
       if (editProduct) {
         await api.put(`/products/${editProduct._id}`, payload);
-        toast.success("تم تحديث المنتج");
+        toast.success(t("adminDashboardPage.productUpdated"));
       } else {
         await api.post("/products", payload);
-        toast.success("تمت إضافة المنتج");
+        toast.success(t("adminDashboardPage.productAdded"));
       }
 
       resetForm();
-      fetchProducts();
-    } catch (requestError) {
-      toast.error(requestError.response?.data?.message || "تعذر حفظ المنتج.");
+      setProducts(await fetchProducts());
+    } catch {
+      toast.error(t("adminDashboardPage.saveError"));
     }
   };
 
@@ -184,35 +211,37 @@ export default function AdminDashboardPage() {
   };
 
   const handleDelete = async (productId) => {
-    if (!window.confirm("هل تريد حذف هذا المنتج؟")) {
+    if (!window.confirm(t("adminDashboardPage.deleteConfirm"))) {
       return;
     }
 
     try {
       await api.delete(`/products/${productId}`);
-      toast.success("تم حذف المنتج");
-      fetchProducts();
+      toast.success(t("adminDashboardPage.productDeleted"));
+      setProducts(await fetchProducts());
     } catch {
-      toast.error("تعذر حذف المنتج");
+      toast.error(t("adminDashboardPage.productDeleteError"));
     }
   };
 
   const handleStatusChange = async (orderId, status) => {
     try {
       await api.put(`/orders/${orderId}`, { status });
-      toast.success("تم تحديث حالة الطلب");
-      fetchOrders();
+      toast.success(t("adminDashboardPage.statusUpdated"));
+      setOrders(await fetchOrders());
     } catch {
-      toast.error("تعذر تحديث حالة الطلب");
+      toast.error(t("adminDashboardPage.statusUpdateError"));
     }
   };
+
+  const getStatusLabel = (status) => t(`common.orderStatus.${status}`);
 
   return (
     <div className="page">
       <section className="container section admin-page">
         <div className="section-heading section-heading--compact">
-          <span className="eyebrow">لوحة الإدارة</span>
-          <h1>مراجعة المنتجات والطلبات من مكان واحد</h1>
+          <span className="eyebrow">{t("adminDashboardPage.eyebrow")}</span>
+          <h1>{t("adminDashboardPage.title")}</h1>
         </div>
 
         <div className="admin-stats">
@@ -231,14 +260,14 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab("products")}
             type="button"
           >
-            المنتجات
+            {t("adminDashboardPage.tabs.products")}
           </button>
           <button
             className={activeTab === "orders" ? "is-active" : ""}
             onClick={() => setActiveTab("orders")}
             type="button"
           >
-            الطلبات
+            {t("adminDashboardPage.tabs.orders")}
           </button>
         </div>
 
@@ -259,7 +288,11 @@ export default function AdminDashboardPage() {
                 type="button"
               >
                 <MdAdd size={18} />
-                <span>{showForm ? "إغلاق النموذج" : "إضافة منتج"}</span>
+                <span>
+                  {showForm
+                    ? t("adminDashboardPage.closeForm")
+                    : t("adminDashboardPage.openForm")}
+                </span>
               </button>
             </div>
 
@@ -267,7 +300,7 @@ export default function AdminDashboardPage() {
               <form className="admin-form" onSubmit={handleSubmit}>
                 <div className="admin-form__grid">
                   <label>
-                    اسم المنتج
+                    {t("adminDashboardPage.productName")}
                     <input
                       onChange={(event) =>
                         setForm((currentValue) => ({
@@ -282,7 +315,7 @@ export default function AdminDashboardPage() {
                   </label>
 
                   <label>
-                    الفئة
+                    {t("common.category")}
                     <input
                       onChange={(event) =>
                         setForm((currentValue) => ({
@@ -297,7 +330,7 @@ export default function AdminDashboardPage() {
                   </label>
 
                   <label>
-                    السعر
+                    {t("common.price")}
                     <input
                       min={0}
                       onChange={(event) =>
@@ -313,7 +346,7 @@ export default function AdminDashboardPage() {
                   </label>
 
                   <label>
-                    المخزون
+                    {t("common.stock")}
                     <input
                       min={0}
                       onChange={(event) =>
@@ -329,7 +362,7 @@ export default function AdminDashboardPage() {
                   </label>
 
                   <label className="admin-form__full">
-                    الوصف
+                    {t("common.description")}
                     <textarea
                       onChange={(event) =>
                         setForm((currentValue) => ({
@@ -344,19 +377,19 @@ export default function AdminDashboardPage() {
                   </label>
 
                   <label className="upload-card">
-                    <span>الصورة الرئيسية</span>
+                    <span>{t("adminDashboardPage.mainImage")}</span>
                     <input accept="image/*" onChange={handleMainImageUpload} type="file" />
                     <div>
                       <MdCloudUpload size={20} />
-                      <small>اختر صورة واضحة بحد أقصى 5MB</small>
+                      <small>{t("adminDashboardPage.mainImageHelper")}</small>
                     </div>
                     {form.image ? (
-                      <img alt="Main product" src={form.image} />
+                      <img alt={t("adminDashboardPage.mainImageAlt")} src={form.image} />
                     ) : null}
                   </label>
 
                   <label className="upload-card">
-                    <span>صور إضافية</span>
+                    <span>{t("adminDashboardPage.extraImages")}</span>
                     <input
                       accept="image/*"
                       multiple
@@ -365,13 +398,16 @@ export default function AdminDashboardPage() {
                     />
                     <div>
                       <MdCloudUpload size={20} />
-                      <small>يمكنك إضافة حتى خمس صور</small>
+                      <small>{t("adminDashboardPage.extraImagesHelper")}</small>
                     </div>
                     {form.images.length > 0 ? (
                       <div className="upload-card__grid">
                         {form.images.map((image, index) => (
                           <div key={`${image}-${index}`} className="upload-card__thumb">
-                            <img alt={`Extra ${index + 1}`} src={image} />
+                            <img
+                              alt={t("adminDashboardPage.extraImageAlt", { index: index + 1 })}
+                              src={image}
+                            />
                             <button
                               onClick={() =>
                                 setForm((currentValue) => ({
@@ -383,7 +419,7 @@ export default function AdminDashboardPage() {
                               }
                               type="button"
                             >
-                              حذف
+                              {t("adminDashboardPage.delete")}
                             </button>
                           </div>
                         ))}
@@ -399,10 +435,14 @@ export default function AdminDashboardPage() {
                     type="submit"
                   >
                     <MdSave size={18} />
-                    <span>{editProduct ? "حفظ التعديلات" : "إضافة المنتج"}</span>
+                    <span>
+                      {editProduct
+                        ? t("adminDashboardPage.saveChanges")
+                        : t("adminDashboardPage.addProduct")}
+                    </span>
                   </button>
                   <button className="button button--secondary" onClick={resetForm} type="button">
-                    إلغاء
+                    {t("common.cancel")}
                   </button>
                 </div>
               </form>
@@ -410,11 +450,11 @@ export default function AdminDashboardPage() {
 
             <div className="admin-table">
               <div className="admin-table__head">
-                <span>المنتج</span>
-                <span>الفئة</span>
-                <span>السعر</span>
-                <span>المخزون</span>
-                <span>إجراءات</span>
+                <span>{t("adminDashboardPage.productTable.product")}</span>
+                <span>{t("adminDashboardPage.productTable.category")}</span>
+                <span>{t("adminDashboardPage.productTable.price")}</span>
+                <span>{t("adminDashboardPage.productTable.stock")}</span>
+                <span>{t("adminDashboardPage.productTable.actions")}</span>
               </div>
 
               {products.map((product) => (
@@ -433,7 +473,11 @@ export default function AdminDashboardPage() {
                     <button className="icon-button" onClick={() => handleEdit(product)} type="button">
                       <MdEdit size={18} />
                     </button>
-                    <button className="icon-button icon-button--danger" onClick={() => handleDelete(product._id)} type="button">
+                    <button
+                      className="icon-button icon-button--danger"
+                      onClick={() => handleDelete(product._id)}
+                      type="button"
+                    >
                       <MdDelete size={18} />
                     </button>
                   </div>
@@ -444,29 +488,29 @@ export default function AdminDashboardPage() {
         ) : (
           <div className="admin-table">
             <div className="admin-table__head">
-              <span>العميل</span>
-              <span>العنوان</span>
-              <span>الإجمالي</span>
-              <span>الحالة</span>
-              <span>التحديث</span>
+              <span>{t("adminDashboardPage.ordersTable.customer")}</span>
+              <span>{t("adminDashboardPage.ordersTable.address")}</span>
+              <span>{t("adminDashboardPage.ordersTable.total")}</span>
+              <span>{t("adminDashboardPage.ordersTable.status")}</span>
+              <span>{t("adminDashboardPage.ordersTable.update")}</span>
             </div>
 
             {orders.map((order) => (
               <article className="admin-table__row" key={order._id}>
-                <span>{order.user?.name || "غير معروف"}</span>
+                <span>{order.user?.name || t("adminDashboardPage.unknownCustomer")}</span>
                 <span>{order.address}</span>
                 <strong>{formatCurrency(order.total)}</strong>
                 <span className={`status-pill status-pill--${order.status}`}>
-                  {order.status}
+                  {getStatusLabel(order.status)}
                 </span>
                 <select
                   onChange={(event) => handleStatusChange(order._id, event.target.value)}
                   value={order.status}
                 >
-                  <option value="pending">pending</option>
-                  <option value="confirmed">confirmed</option>
-                  <option value="delivered">delivered</option>
-                  <option value="cancelled">cancelled</option>
+                  <option value="pending">{getStatusLabel("pending")}</option>
+                  <option value="confirmed">{getStatusLabel("confirmed")}</option>
+                  <option value="delivered">{getStatusLabel("delivered")}</option>
+                  <option value="cancelled">{getStatusLabel("cancelled")}</option>
                 </select>
               </article>
             ))}

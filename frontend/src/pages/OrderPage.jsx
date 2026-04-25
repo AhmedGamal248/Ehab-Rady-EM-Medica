@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../services/api";
@@ -7,6 +8,7 @@ import { useCart } from "../context/CartContext";
 import { formatCurrency } from "../utils/formatters";
 
 export default function OrderPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { cart, clearCart, total } = useCart();
@@ -24,7 +26,7 @@ export default function OrderPage() {
     event.preventDefault();
 
     if (cart.length === 0) {
-      toast.error("السلة فارغة حاليًا.");
+      toast.error(t("orderPage.emptyCartError"));
       return;
     }
 
@@ -40,12 +42,10 @@ export default function OrderPage() {
       });
 
       clearCart();
-      toast.success("تم تأكيد الطلب بنجاح");
+      toast.success(t("orderPage.success"));
       navigate("/");
-    } catch (requestError) {
-      toast.error(
-        requestError.response?.data?.message || "تعذر تأكيد الطلب حاليًا."
-      );
+    } catch {
+      toast.error(t("orderPage.error"));
     } finally {
       setLoading(false);
     }
@@ -59,14 +59,14 @@ export default function OrderPage() {
     <div className="page">
       <section className="container section order-layout">
         <div className="section-heading section-heading--compact">
-          <span className="eyebrow">إتمام الطلب</span>
-          <h1>أكمل بيانات الشحن وراجع الملخص النهائي</h1>
+          <span className="eyebrow">{t("orderPage.eyebrow")}</span>
+          <h1>{t("orderPage.title")}</h1>
         </div>
 
         <div className="order-layout__grid">
           <form className="order-form" onSubmit={handleSubmit}>
             <label>
-              عنوان الشحن
+              {t("orderPage.addressLabel")}
               <textarea
                 minLength={10}
                 onChange={(event) =>
@@ -75,7 +75,7 @@ export default function OrderPage() {
                     address: event.target.value,
                   }))
                 }
-                placeholder="اكتب العنوان بالتفصيل"
+                placeholder={t("orderPage.addressPlaceholder")}
                 required
                 rows={5}
                 value={form.address}
@@ -83,7 +83,7 @@ export default function OrderPage() {
             </label>
 
             <label>
-              رقم الهاتف
+              {t("orderPage.phoneLabel")}
               <input
                 onChange={(event) =>
                   setForm((currentValue) => ({
@@ -91,32 +91,34 @@ export default function OrderPage() {
                     phone: event.target.value,
                   }))
                 }
-                placeholder="+20 100 000 0000"
+                placeholder={t("orderPage.phonePlaceholder")}
                 required
                 type="tel"
                 value={form.phone}
               />
             </label>
 
-            <button className="button button--primary button--large" disabled={loading} type="submit">
-              {loading ? "جاري تأكيد الطلب..." : "تأكيد الطلب"}
+            <button
+              className="button button--primary button--large"
+              disabled={loading}
+              type="submit"
+            >
+              {loading ? t("orderPage.loadingButton") : t("orderPage.submitButton")}
             </button>
           </form>
 
           <aside className="summary-card">
-            <h2>ملخص السلة</h2>
+            <h2>{t("orderPage.summaryTitle")}</h2>
             <div className="summary-card__rows">
               {cart.map((item) => (
                 <div key={item._id}>
-                  <span>
-                    {item.name} x {item.quantity}
-                  </span>
+                  <span>{t("orderPage.itemSummary", { name: item.name, quantity: item.quantity })}</span>
                   <strong>{formatCurrency(item.price * item.quantity)}</strong>
                 </div>
               ))}
             </div>
             <div className="summary-card__total">
-              <span>الإجمالي</span>
+              <span>{t("common.total")}</span>
               <strong>{formatCurrency(total)}</strong>
             </div>
           </aside>

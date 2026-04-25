@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../services/api";
@@ -6,11 +7,13 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { login } = useAuth();
   const { cartCount } = useCart();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const introPoints = t("registerPage.introPoints", { returnObjects: true });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -21,7 +24,7 @@ export default function RegisterPage() {
       const { token, user } = response.data?.data || response.data;
 
       login(user, token);
-      toast.success("تم إنشاء الحساب بنجاح");
+      toast.success(t("registerPage.success"));
 
       const redirectTo = localStorage.getItem("redirectAfterLogin");
       if (redirectTo) {
@@ -31,10 +34,8 @@ export default function RegisterPage() {
       }
 
       navigate(cartCount > 0 ? "/cart" : "/");
-    } catch (requestError) {
-      toast.error(
-        requestError.response?.data?.message || "تعذر إنشاء الحساب حاليًا."
-      );
+    } catch {
+      toast.error(t("registerPage.error"));
     } finally {
       setLoading(false);
     }
@@ -44,28 +45,25 @@ export default function RegisterPage() {
     <div className="page auth-page">
       <div className="container auth-page__container">
         <section className="auth-card auth-card--accent">
-          <span className="eyebrow eyebrow--solid">حساب جديد</span>
-          <h1>واجهة تسجيل أنظف وأكثر وضوحًا</h1>
-          <p>
-            حسّنا الصفحة لتكون مناسبة للمستخدمين على الهواتف والشاشات الكبيرة مع
-            تباين قوي ونصوص أوضح.
-          </p>
+          <span className="eyebrow eyebrow--solid">{t("registerPage.introEyebrow")}</span>
+          <h1>{t("registerPage.introTitle")}</h1>
+          <p>{t("registerPage.introDescription")}</p>
           <ul className="auth-card__list">
-            <li>حقول أقصر وأسهل في الفهم</li>
-            <li>تجربة مناسبة للوضعين الفاتح والداكن</li>
-            <li>توجيه تلقائي ذكي بعد التسجيل</li>
+            {introPoints.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </section>
 
         <section className="auth-card">
           <div className="section-heading section-heading--compact">
-            <span className="eyebrow">إنشاء حساب</span>
-            <h2>ابدأ الشراء بثقة</h2>
+            <span className="eyebrow">{t("registerPage.sectionEyebrow")}</span>
+            <h2>{t("registerPage.sectionTitle")}</h2>
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <label>
-              الاسم
+              {t("registerPage.nameLabel")}
               <input
                 autoComplete="name"
                 minLength={2}
@@ -75,7 +73,7 @@ export default function RegisterPage() {
                     name: event.target.value,
                   }))
                 }
-                placeholder="الاسم الكامل"
+                placeholder={t("registerPage.namePlaceholder")}
                 required
                 type="text"
                 value={form.name}
@@ -83,7 +81,7 @@ export default function RegisterPage() {
             </label>
 
             <label>
-              البريد الإلكتروني
+              {t("registerPage.emailLabel")}
               <input
                 autoComplete="email"
                 onChange={(event) =>
@@ -92,7 +90,7 @@ export default function RegisterPage() {
                     email: event.target.value,
                   }))
                 }
-                placeholder="name@example.com"
+                placeholder={t("registerPage.emailPlaceholder")}
                 required
                 type="email"
                 value={form.email}
@@ -100,7 +98,7 @@ export default function RegisterPage() {
             </label>
 
             <label>
-              كلمة المرور
+              {t("registerPage.passwordLabel")}
               <input
                 autoComplete="new-password"
                 minLength={8}
@@ -110,20 +108,25 @@ export default function RegisterPage() {
                     password: event.target.value,
                   }))
                 }
-                placeholder="8 أحرف على الأقل"
+                placeholder={t("registerPage.passwordPlaceholder")}
                 required
                 type="password"
                 value={form.password}
               />
             </label>
 
-            <button className="button button--primary button--large" disabled={loading} type="submit">
-              {loading ? "جاري إنشاء الحساب..." : "إنشاء الحساب"}
+            <button
+              className="button button--primary button--large"
+              disabled={loading}
+              type="submit"
+            >
+              {loading ? t("registerPage.loadingButton") : t("registerPage.submitButton")}
             </button>
           </form>
 
           <p className="auth-card__footer">
-            لديك حساب بالفعل؟ <Link to="/login">سجل الدخول</Link>
+            {t("registerPage.footerText")}{" "}
+            <Link to="/login">{t("registerPage.footerLink")}</Link>
           </p>
         </section>
       </div>

@@ -1,14 +1,17 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { login } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const introPoints = t("loginPage.introPoints", { returnObjects: true });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -19,7 +22,7 @@ export default function LoginPage() {
       const { token, user } = response.data?.data || response.data;
 
       login(user, token);
-      toast.success("تم تسجيل الدخول بنجاح");
+      toast.success(t("loginPage.success"));
 
       const redirectTo = localStorage.getItem("redirectAfterLogin");
       if (redirectTo) {
@@ -28,10 +31,8 @@ export default function LoginPage() {
       } else {
         navigate("/");
       }
-    } catch (requestError) {
-      toast.error(
-        requestError.response?.data?.message || "تعذر تسجيل الدخول بهذه البيانات."
-      );
+    } catch {
+      toast.error(t("loginPage.error"));
     } finally {
       setLoading(false);
     }
@@ -41,28 +42,25 @@ export default function LoginPage() {
     <div className="page auth-page">
       <div className="container auth-page__container">
         <section className="auth-card auth-card--accent">
-          <span className="eyebrow eyebrow--solid">أهلاً بك مجددًا</span>
-          <h1>تسجيل دخول سريع وواضح</h1>
-          <p>
-            أبقينا الصفحة بسيطة ومريحة بصريًا حتى تتم عملية الدخول بسرعة وبدون
-            تشتيت.
-          </p>
+          <span className="eyebrow eyebrow--solid">{t("loginPage.introEyebrow")}</span>
+          <h1>{t("loginPage.introTitle")}</h1>
+          <p>{t("loginPage.introDescription")}</p>
           <ul className="auth-card__list">
-            <li>ألوان متباينة وواضحة</li>
-            <li>حقول أكبر وأسهل على الجوال</li>
-            <li>رسائل خطأ ونجاح مباشرة</li>
+            {introPoints.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </section>
 
         <section className="auth-card">
           <div className="section-heading section-heading--compact">
-            <span className="eyebrow">تسجيل الدخول</span>
-            <h2>ابدأ من هنا</h2>
+            <span className="eyebrow">{t("loginPage.sectionEyebrow")}</span>
+            <h2>{t("loginPage.sectionTitle")}</h2>
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <label>
-              البريد الإلكتروني
+              {t("loginPage.emailLabel")}
               <input
                 autoComplete="email"
                 onChange={(event) =>
@@ -71,7 +69,7 @@ export default function LoginPage() {
                     email: event.target.value,
                   }))
                 }
-                placeholder="name@example.com"
+                placeholder={t("loginPage.emailPlaceholder")}
                 required
                 type="email"
                 value={form.email}
@@ -79,7 +77,7 @@ export default function LoginPage() {
             </label>
 
             <label>
-              كلمة المرور
+              {t("loginPage.passwordLabel")}
               <input
                 autoComplete="current-password"
                 minLength={8}
@@ -89,20 +87,24 @@ export default function LoginPage() {
                     password: event.target.value,
                   }))
                 }
-                placeholder="********"
+                placeholder={t("loginPage.passwordPlaceholder")}
                 required
                 type="password"
                 value={form.password}
               />
             </label>
 
-            <button className="button button--primary button--large" disabled={loading} type="submit">
-              {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+            <button
+              className="button button--primary button--large"
+              disabled={loading}
+              type="submit"
+            >
+              {loading ? t("loginPage.loadingButton") : t("loginPage.submitButton")}
             </button>
           </form>
 
           <p className="auth-card__footer">
-            لا تملك حسابًا؟ <Link to="/register">أنشئ حسابًا جديدًا</Link>
+            {t("loginPage.footerText")} <Link to="/register">{t("loginPage.footerLink")}</Link>
           </p>
         </section>
       </div>

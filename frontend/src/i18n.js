@@ -3,11 +3,11 @@ import { initReactI18next } from "react-i18next";
 import ar from "./locales/ar.json";
 import en from "./locales/en.json";
 
-const DEFAULT_LANGUAGE = "ar";
-const LANGUAGE_STORAGE_KEY = "app-language";
+const DEFAULT_LANGUAGE = "en";
+export const LANGUAGE_STORAGE_KEY = "app-language";
 
 function normalizeLanguage(language) {
-  return language === "en" ? "en" : "ar";
+  return language === "ar" ? "ar" : "en";
 }
 
 function getInitialLanguage() {
@@ -15,7 +15,13 @@ function getInitialLanguage() {
     return DEFAULT_LANGUAGE;
   }
 
-  return normalizeLanguage(window.localStorage.getItem(LANGUAGE_STORAGE_KEY));
+  const savedLanguage = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+
+  if (savedLanguage) {
+    return normalizeLanguage(savedLanguage);
+  }
+
+  return DEFAULT_LANGUAGE;
 }
 
 function getDirection(language) {
@@ -43,15 +49,16 @@ const initialLanguage = getInitialLanguage();
 
 i18n.use(initReactI18next).init({
   resources: {
-    ar: { translation: ar },
     en: { translation: en },
+    ar: { translation: ar },
   },
   lng: initialLanguage,
   fallbackLng: DEFAULT_LANGUAGE,
-  supportedLngs: ["ar", "en"],
+  supportedLngs: ["en", "ar"],
   interpolation: {
     escapeValue: false,
   },
+  returnNull: false,
 });
 
 applyDocumentLanguage(initialLanguage);

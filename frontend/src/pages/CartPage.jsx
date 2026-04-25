@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { MdDelete, MdLocalShipping, MdShoppingCart } from "react-icons/md";
 import { useAuth } from "../context/AuthContext";
@@ -9,6 +10,7 @@ import {
 } from "../utils/formatters";
 
 export default function CartPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { cart, cartCount, removeFromCart, total, updateQuantity } = useCart();
@@ -29,10 +31,14 @@ export default function CartPage() {
         <div className="container section">
           <div className="state-card">
             <MdShoppingCart size={42} />
-            <h2>السلة فارغة</h2>
-            <p>أضف بعض المنتجات أولًا ثم ارجع هنا لإكمال الطلب.</p>
-            <button className="button button--primary" onClick={() => navigate("/products")} type="button">
-              تصفح المنتجات
+            <h2>{t("cartPage.emptyTitle")}</h2>
+            <p>{t("cartPage.emptyDescription")}</p>
+            <button
+              className="button button--primary"
+              onClick={() => navigate("/products")}
+              type="button"
+            >
+              {t("common.browseProducts")}
             </button>
           </div>
         </div>
@@ -44,9 +50,9 @@ export default function CartPage() {
     <div className="page">
       <section className="page-hero page-hero--compact">
         <div className="container page-hero__content">
-          <span className="eyebrow eyebrow--solid">سلة الشراء</span>
-          <h1>راجع المنتجات قبل إتمام الطلب</h1>
-          <p>تفاصيل أوضح، تحكم أسهل في الكميات، وملخص فوري للتكلفة النهائية.</p>
+          <span className="eyebrow eyebrow--solid">{t("cartPage.heroEyebrow")}</span>
+          <h1>{t("cartPage.heroTitle")}</h1>
+          <p>{t("cartPage.heroDescription")}</p>
         </div>
       </section>
 
@@ -69,6 +75,7 @@ export default function CartPage() {
               <div className="cart-item__actions">
                 <div className="stepper">
                   <button
+                    aria-label={t("cartPage.decreaseQuantity")}
                     onClick={() => updateQuantity(item._id, item.quantity - 1)}
                     type="button"
                   >
@@ -76,6 +83,7 @@ export default function CartPage() {
                   </button>
                   <strong>{item.quantity}</strong>
                   <button
+                    aria-label={t("cartPage.increaseQuantity")}
                     onClick={() => updateQuantity(item._id, item.quantity + 1)}
                     type="button"
                   >
@@ -84,6 +92,7 @@ export default function CartPage() {
                 </div>
                 <strong>{formatCurrency(item.price * item.quantity)}</strong>
                 <button
+                  aria-label={t("cartPage.removeItem")}
                   className="icon-button"
                   onClick={() => removeFromCart(item._id)}
                   type="button"
@@ -96,35 +105,43 @@ export default function CartPage() {
         </div>
 
         <aside className="summary-card">
-          <h2>ملخص الطلب</h2>
+          <h2>{t("cartPage.summaryTitle")}</h2>
           <div className="summary-card__rows">
             <div>
-              <span>عدد القطع</span>
+              <span>{t("cartPage.itemsCount")}</span>
               <strong>{cartCount}</strong>
             </div>
             <div>
-              <span>الإجمالي الفرعي</span>
+              <span>{t("cartPage.subtotal")}</span>
               <strong>{formatCurrency(total)}</strong>
             </div>
             <div>
               <span>
                 <MdLocalShipping size={16} />
-                الشحن
+                {t("common.shipping")}
               </span>
-              <strong>مجاني</strong>
+              <strong>{t("common.free")}</strong>
             </div>
           </div>
 
           <div className="summary-card__total">
-            <span>الإجمالي النهائي</span>
+            <span>{t("common.finalTotal")}</span>
             <strong>{formatCurrency(total)}</strong>
           </div>
 
-          <button className="button button--primary button--large" onClick={handleCheckout} type="button">
-            إتمام الطلب
+          <button
+            className="button button--primary button--large"
+            onClick={handleCheckout}
+            type="button"
+          >
+            {t("cartPage.checkout")}
           </button>
-          <button className="button button--secondary" onClick={() => navigate("/products")} type="button">
-            متابعة التسوق
+          <button
+            className="button button--secondary"
+            onClick={() => navigate("/products")}
+            type="button"
+          >
+            {t("common.continueShopping")}
           </button>
         </aside>
       </section>

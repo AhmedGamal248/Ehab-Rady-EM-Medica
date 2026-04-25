@@ -5,6 +5,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { MdFilterList, MdInventory2, MdSearch } from "react-icons/md";
 import api from "../services/api";
 import MedicalProductCard from "../components/MedicalProductCard";
@@ -14,6 +15,7 @@ function getProductsPayload(response) {
 }
 
 export default function ProductsPage() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
@@ -36,11 +38,9 @@ export default function ProductsPage() {
             setProducts(nextProducts);
           });
         }
-      } catch (requestError) {
+      } catch {
         if (!ignore) {
-          setError(
-            requestError.response?.data?.message || "تعذر تحميل المنتجات حاليًا."
-          );
+          setError(t("productsPage.loadError"));
         }
       } finally {
         if (!ignore) {
@@ -49,12 +49,12 @@ export default function ProductsPage() {
       }
     };
 
-    fetchProducts();
+    void fetchProducts();
 
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [t]);
 
   const categories = useMemo(
     () =>
@@ -79,12 +79,9 @@ export default function ProductsPage() {
     <div className="page">
       <section className="page-hero">
         <div className="container page-hero__content">
-          <span className="eyebrow eyebrow--solid">الكتالوج الطبي</span>
-          <h1>تصفح المنتجات الطبية بسهولة وابدأ من الفئة المناسبة</h1>
-          <p>
-            استخدم البحث والتصفية للوصول بسرعة إلى المنتج المطلوب مع بطاقات أوضح
-            ومعلومات أسهل في المسح.
-          </p>
+          <span className="eyebrow eyebrow--solid">{t("productsPage.heroEyebrow")}</span>
+          <h1>{t("productsPage.heroTitle")}</h1>
+          <p>{t("productsPage.heroDescription")}</p>
         </div>
       </section>
 
@@ -94,7 +91,7 @@ export default function ProductsPage() {
             <MdSearch size={20} />
             <input
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="ابحث باسم المنتج أو الوصف"
+              placeholder={t("productsPage.searchPlaceholder")}
               type="search"
               value={search}
             />
@@ -106,7 +103,7 @@ export default function ProductsPage() {
               onChange={(event) => setCategory(event.target.value)}
               value={category}
             >
-              <option value="">كل الفئات</option>
+              <option value="">{t("productsPage.allCategories")}</option>
               {categories.map((item) => (
                 <option key={item} value={item}>
                   {item}
@@ -118,15 +115,15 @@ export default function ProductsPage() {
 
         <div className="section-heading section-heading--inline">
           <div>
-            <span className="eyebrow">نتائج البحث</span>
-            <h2>{filteredProducts.length} منتج متاح</h2>
+            <span className="eyebrow">{t("productsPage.resultsEyebrow")}</span>
+            <h2>{t("productsPage.availableCount", { count: filteredProducts.length })}</h2>
           </div>
         </div>
 
         {loading ? (
           <div className="state-card">
             <div className="spinner" />
-            <p>جاري تحميل المنتجات...</p>
+            <p>{t("productsPage.loading")}</p>
           </div>
         ) : error ? (
           <div className="state-card state-card--error">
@@ -135,7 +132,7 @@ export default function ProductsPage() {
         ) : filteredProducts.length === 0 ? (
           <div className="state-card">
             <MdInventory2 size={38} />
-            <p>لم نجد منتجات تطابق هذه المعايير.</p>
+            <p>{t("productsPage.empty")}</p>
           </div>
         ) : (
           <div className="product-grid">

@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { MdAddShoppingCart, MdVerifiedUser } from "react-icons/md";
@@ -11,13 +12,14 @@ import {
 } from "../utils/formatters";
 
 function MedicalProductCard({ product }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
   const handleAddToCart = (event) => {
     event.stopPropagation();
     addToCart(product);
-    toast.success("تمت إضافة المنتج إلى السلة");
+    toast.success(t("productCard.addedSuccess"));
   };
 
   return (
@@ -44,14 +46,14 @@ function MedicalProductCard({ product }) {
         />
         <span className="product-card__badge">
           <MdVerifiedUser size={16} />
-          معتمد
+          {t("productCard.certified")}
         </span>
         {product.stock <= 0 ? (
           <span className="product-card__stock product-card__stock--empty">
-            نفد المخزون
+            {t("productCard.outOfStock")}
           </span>
         ) : (
-          <span className="product-card__stock">متاح</span>
+          <span className="product-card__stock">{t("productCard.available")}</span>
         )}
       </div>
 
@@ -70,7 +72,9 @@ function MedicalProductCard({ product }) {
           type="button"
         >
           <MdAddShoppingCart size={18} />
-          <span>{product.stock <= 0 ? "غير متاح" : "أضف للسلة"}</span>
+          <span>
+            {product.stock <= 0 ? t("productCard.unavailable") : t("productCard.addToCart")}
+          </span>
         </button>
       </div>
     </article>

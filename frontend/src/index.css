@@ -59,7 +59,6 @@
 }
 
 html {
-  direction: rtl;
   scroll-behavior: smooth;
 }
 
@@ -69,9 +68,14 @@ body {
     radial-gradient(circle at bottom left, rgba(217, 108, 63, 0.12), transparent 20%),
     var(--background);
   color: var(--text-primary);
-  font-family: "Cairo", "Segoe UI", sans-serif;
+  font-family: "Manrope", "Segoe UI", sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  text-align: start;
+}
+
+html[lang="ar"] body {
+  font-family: "Cairo", "Segoe UI", sans-serif;
 }
 
 img {
@@ -673,14 +677,14 @@ a:focus-visible {
 .product-card__badge {
   background: rgba(17, 50, 74, 0.72);
   color: #fff;
-  right: 12px;
+  inset-inline-end: 12px;
   top: 12px;
 }
 
 .product-card__stock {
   background: rgba(21, 128, 61, 0.82);
   color: #fff;
-  left: 12px;
+  inset-inline-start: 12px;
   top: 12px;
 }
 
@@ -789,12 +793,12 @@ a:focus-visible {
 
 .product-details__verified {
   background: rgba(17, 50, 74, 0.78);
-  right: 30px;
+  inset-inline-end: 30px;
   top: 30px;
 }
 
 .product-details__availability {
-  left: 30px;
+  inset-inline-start: 30px;
   top: 30px;
 }
 
@@ -912,7 +916,7 @@ a:focus-visible {
   gap: 14px;
   min-width: 240px;
   padding: 14px;
-  text-align: right;
+  text-align: start;
 }
 
 .related-product img {
@@ -1279,7 +1283,7 @@ a:focus-visible {
 .site-footer__grid {
   display: grid;
   gap: 24px;
-  grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(0, 1fr));
 }
 
 .site-footer__brand,
@@ -1363,10 +1367,10 @@ a:focus-visible {
     border-radius: 24px;
     box-shadow: var(--shadow-soft);
     display: none;
-    left: 24px;
     padding: 16px;
     position: absolute;
-    right: 24px;
+    inset-inline-end: 24px;
+    inset-inline-start: 24px;
     top: calc(100% + 12px);
   }
 

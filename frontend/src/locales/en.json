@@ -42,23 +42,16 @@
     "switchToDarkMode": "Switch to dark mode",
     "switchToEnglish": "Switch to English",
     "switchToArabic": "Switch to Arabic",
-    "englishLabel": "English",
-    "arabicLabel": "العربية",
+    "englishLabel": "EN",
+    "arabicLabel": "AR",
     "login": "Login",
     "register": "Create Account",
     "logout": "Logout"
   },
   "footer": {
-    "brandDescription": "A professional destination for medical supplies and equipment with a clear, secure shopping experience for clinics, centers, and patients.",
-    "quickLinksTitle": "Quick Links",
+    "brandDescription": "A professional medical storefront for supplies and equipment with a clear, secure shopping experience for clinics, centers, and patients.",
     "categoriesTitle": "Popular Categories",
     "contactTitle": "Contact Information",
-    "quickLinks": [
-      { "label": "Home", "to": "/" },
-      { "label": "Products", "to": "/products" },
-      { "label": "Cart", "to": "/cart" },
-      { "label": "Create Account", "to": "/register" }
-    ],
     "categories": [
       "Monitoring Devices",
       "Surgical Tools",
@@ -67,17 +60,17 @@
     ],
     "city": "Cairo, Egypt",
     "workingHours": "Saturday to Thursday, 9:00 AM to 10:00 PM",
-    "copyright": "(c) {{year}} MedStore. All rights reserved.",
+    "copyright": "(c) {{year}} EM Medica. All rights reserved.",
     "privacy": "Clear privacy policy",
     "support": "Fast support",
     "delivery": "Reliable delivery"
   },
   "homePage": {
-    "heroTitle": "Clear and trusted medical products with a smooth, fast shopping experience",
+    "heroTitle": "Clear, trusted medical products with a smooth and fast shopping experience",
     "heroBrowseProducts": "Browse Products",
     "heroCreateAccount": "Create New Account",
     "pricingClarity": "Transparent pricing",
-    "readyToBuy": "Ready to buy",
+    "readyToBuy": "Ready to order",
     "equipmentTitle": "Medical equipment and consumables",
     "heroCategories": [
       "Monitoring Devices",
@@ -92,8 +85,8 @@
       { "value": "99%", "label": "Completed orders" }
     ],
     "whyEyebrow": "Why this refresh",
-    "whyTitle": "A clearer interface made for medical commerce",
-    "whyDescription": "We focused on contrast, readability, and reducing visual noise so important products and information stand out better.",
+    "whyTitle": "A clearer interface built for medical commerce",
+    "whyDescription": "We focused on readability, stronger contrast, and reduced visual clutter so important products and information stand out faster.",
     "trustHighlights": [
       {
         "title": "Trusted products",
@@ -101,11 +94,11 @@
       },
       {
         "title": "Fast shipping",
-        "description": "Organized delivery inside Cairo with clear order tracking."
+        "description": "Organized delivery with clear order tracking and dependable fulfillment."
       },
       {
         "title": "Specialized support",
-        "description": "A responsive team that helps you choose the right product for your needs."
+        "description": "A responsive team ready to help you choose the right product for your needs."
       }
     ],
     "ctaEyebrow": "Ready to start",
@@ -142,12 +135,14 @@
     "unavailable": "Unavailable",
     "finalPrice": "Final price",
     "quantity": "Quantity",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
     "productUnavailable": "Product unavailable",
     "addToCartTotal": "Add to cart - {{price}}",
     "shippingTitle": "Organized shipping",
     "shippingDescription": "Clear updates about order and delivery status.",
     "trustTitle": "More confidence",
-    "trustDescription": "Clear pricing and product descriptions without distractions.",
+    "trustDescription": "Clear pricing and product descriptions without unnecessary distractions.",
     "supportTitle": "Fast help",
     "supportDescription": "Easy communication and follow-up during the order.",
     "relatedEyebrow": "Related products",
@@ -165,14 +160,17 @@
     "summaryTitle": "Order summary",
     "itemsCount": "Items count",
     "subtotal": "Subtotal",
-    "checkout": "Proceed to Checkout"
+    "checkout": "Proceed to Checkout",
+    "removeItem": "Remove item",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity"
   },
   "loginPage": {
     "success": "Logged in successfully",
-    "error": "Unable to sign in with these credentials.",
+    "error": "Unable to sign in right now.",
     "introEyebrow": "Welcome back",
     "introTitle": "Fast and clear sign in",
-    "introDescription": "We kept this page simple and visually comfortable so signing in is quick and distraction-free.",
+    "introDescription": "We kept this page simple and visually comfortable so signing in stays quick and distraction-free.",
     "introPoints": [
       "High-contrast, clear colors",
       "Larger fields that feel better on mobile",
@@ -231,6 +229,7 @@
   "adminDashboardPage": {
     "eyebrow": "Admin dashboard",
     "title": "Review products and orders from one place",
+    "loadError": "Unable to load dashboard data.",
     "stats": {
       "products": "Products",
       "orders": "Orders",

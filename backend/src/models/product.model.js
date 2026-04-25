@@ -1,5 +1,13 @@
 const mongoose = require("mongoose");
 
+const colorSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true, maxlength: 50 },
+    hex: { type: String, required: true, trim: true, maxlength: 9 },
+  },
+  { _id: false }
+);
+
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 200 },
@@ -9,11 +17,11 @@ const productSchema = new mongoose.Schema(
     images: [{ type: String, trim: true }],
     category: { type: String, required: true, trim: true, maxlength: 120 },
     stock: { type: Number, default: 0, min: 0 },
+    colors: { type: [colorSchema], default: [] },
   },
   { timestamps: true }
 );
 
-// Indexes
 productSchema.index({ name: "text", description: "text" });
 productSchema.index({ category: 1 });
 productSchema.index({ price: 1 });

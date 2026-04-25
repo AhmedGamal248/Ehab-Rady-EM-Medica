@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
@@ -28,6 +29,7 @@ function getProductsPayload(response) {
 }
 
 export default function ProductDetailsPage() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -38,6 +40,7 @@ export default function ProductDetailsPage() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const isRtl = i18n.dir() === "rtl";
 
   useEffect(() => {
     let ignore = false;
@@ -73,11 +76,9 @@ export default function ProductDetailsPage() {
         } else {
           setRelatedProducts([]);
         }
-      } catch (requestError) {
+      } catch {
         if (!ignore) {
-          setError(
-            requestError.response?.data?.message || "تعذر تحميل بيانات المنتج."
-          );
+          setError(t("productDetailsPage.loadError"));
         }
       } finally {
         if (!ignore) {
@@ -86,12 +87,12 @@ export default function ProductDetailsPage() {
       }
     }
 
-    fetchProductDetails();
+    void fetchProductDetails();
 
     return () => {
       ignore = true;
     };
-  }, [id]);
+  }, [id, t]);
 
   const images = useMemo(() => {
     if (!product) {
@@ -103,7 +104,7 @@ export default function ProductDetailsPage() {
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
-    toast.success(`تمت إضافة ${quantity} قطعة إلى السلة`);
+    toast.success(t("productDetailsPage.addedSuccess", { count: quantity }));
   };
 
   const scrollSlider = (direction) => {
@@ -113,13 +114,16 @@ export default function ProductDetailsPage() {
     });
   };
 
+  const previousDirection = isRtl ? 1 : -1;
+  const nextDirection = isRtl ? -1 : 1;
+
   if (loading) {
     return (
       <div className="page">
         <div className="container section">
           <div className="state-card">
             <div className="spinner" />
-            <p>جاري تحميل تفاصيل المنتج...</p>
+            <p>{t("productDetailsPage.loading")}</p>
           </div>
         </div>
       </div>
@@ -131,9 +135,13 @@ export default function ProductDetailsPage() {
       <div className="page">
         <div className="container section">
           <div className="state-card state-card--error">
-            <p>{error || "المنتج غير موجود."}</p>
-            <button className="button button--primary" onClick={() => navigate("/products")} type="button">
-              العودة للمنتجات
+            <p>{error || t("productDetailsPage.notFound")}</p>
+            <button
+              className="button button--primary"
+              onClick={() => navigate("/products")}
+              type="button"
+            >
+              {t("productDetailsPage.backToProducts")}
             </button>
           </div>
         </div>
@@ -144,9 +152,9 @@ export default function ProductDetailsPage() {
   return (
     <div className="page">
       <div className="container breadcrumb">
-        <Link to="/">الرئيسية</Link>
+        <Link to="/">{t("common.home")}</Link>
         <span>/</span>
-        <Link to="/products">المنتجات</Link>
+        <Link to="/products">{t("common.products")}</Link>
         <span>/</span>
         <span>{product.name}</span>
       </div>
@@ -161,14 +169,16 @@ export default function ProductDetailsPage() {
             />
             <span className="product-details__verified">
               <MdVerifiedUser size={16} />
-              منتج موثوق
+              {t("productDetailsPage.verified")}
             </span>
             <span
               className={`product-details__availability ${
                 product.stock > 0 ? "is-available" : "is-unavailable"
               }`}
             >
-              {product.stock > 0 ? `متاح (${product.stock} قطعة)` : "غير متاح"}
+              {product.stock > 0
+                ? t("productDetailsPage.availableWithCount", { count: product.stock })
+                : t("productDetailsPage.unavailable")}
             </span>
           </div>
 
@@ -184,7 +194,10 @@ export default function ProductDetailsPage() {
                   type="button"
                 >
                   <img
-                    alt={`${product.name} ${index + 1}`}
+                    alt={t("productDetailsPage.thumbnailAlt", {
+                      name: product.name,
+                      index: index + 1,
+                    })}
                     onError={handleProductImageError}
                     src={image}
                   />
@@ -201,16 +214,17 @@ export default function ProductDetailsPage() {
 
           <div className="product-details__price-card">
             <div>
-              <span>السعر النهائي</span>
+              <span>{t("productDetailsPage.finalPrice")}</span>
               <strong>{formatCurrency(product.price)}</strong>
             </div>
             <MdVerifiedUser size={32} />
           </div>
 
           <div className="product-details__quantity">
-            <span>الكمية</span>
+            <span>{t("productDetailsPage.quantity")}</span>
             <div>
               <button
+                aria-label={t("productDetailsPage.decreaseQuantity")}
                 onClick={() => setQuantity((value) => Math.max(1, value - 1))}
                 type="button"
               >
@@ -218,6 +232,7 @@ export default function ProductDetailsPage() {
               </button>
               <strong>{quantity}</strong>
               <button
+                aria-label={t("productDetailsPage.increaseQuantity")}
                 onClick={() =>
                   setQuantity((value) => Math.min(product.stock || 1, value + 1))
                 }
@@ -237,8 +252,10 @@ export default function ProductDetailsPage() {
             <MdAddShoppingCart size={20} />
             <span>
               {product.stock <= 0
-                ? "المنتج غير متاح"
-                : `أضف إلى السلة - ${formatCurrency(product.price * quantity)}`}
+                ? t("productDetailsPage.productUnavailable")
+                : t("productDetailsPage.addToCartTotal", {
+                    price: formatCurrency(product.price * quantity),
+                  })}
             </span>
           </button>
 
@@ -247,22 +264,22 @@ export default function ProductDetailsPage() {
               <span className="feature-card__icon">
                 <MdLocalShipping size={20} />
               </span>
-              <h3>شحن منظم</h3>
-              <p>معلومات واضحة عن حالة الطلب والتسليم.</p>
+              <h3>{t("productDetailsPage.shippingTitle")}</h3>
+              <p>{t("productDetailsPage.shippingDescription")}</p>
             </article>
             <article className="feature-card feature-card--compact">
               <span className="feature-card__icon">
                 <MdSecurity size={20} />
               </span>
-              <h3>ثقة أعلى</h3>
-              <p>أسعار ووصف منتج واضحان بدون عناصر مشتتة.</p>
+              <h3>{t("productDetailsPage.trustTitle")}</h3>
+              <p>{t("productDetailsPage.trustDescription")}</p>
             </article>
             <article className="feature-card feature-card--compact">
               <span className="feature-card__icon">
                 <MdSupportAgent size={20} />
               </span>
-              <h3>مساعدة سريعة</h3>
-              <p>سهولة التواصل والمتابعة أثناء الطلب.</p>
+              <h3>{t("productDetailsPage.supportTitle")}</h3>
+              <p>{t("productDetailsPage.supportDescription")}</p>
             </article>
           </div>
         </div>
@@ -272,15 +289,15 @@ export default function ProductDetailsPage() {
         <section className="container section">
           <div className="section-heading section-heading--inline">
             <div>
-              <span className="eyebrow">منتجات مشابهة</span>
-              <h2>اكتشف المزيد من نفس الفئة</h2>
+              <span className="eyebrow">{t("productDetailsPage.relatedEyebrow")}</span>
+              <h2>{t("productDetailsPage.relatedTitle")}</h2>
             </div>
             <div className="slider-actions">
-              <button onClick={() => scrollSlider(-1)} type="button">
-                <MdChevronRight size={20} />
+              <button onClick={() => scrollSlider(previousDirection)} type="button">
+                {isRtl ? <MdChevronRight size={20} /> : <MdChevronLeft size={20} />}
               </button>
-              <button onClick={() => scrollSlider(1)} type="button">
-                <MdChevronLeft size={20} />
+              <button onClick={() => scrollSlider(nextDirection)} type="button">
+                {isRtl ? <MdChevronLeft size={20} /> : <MdChevronRight size={20} />}
               </button>
             </div>
           </div>
@@ -311,7 +328,7 @@ export default function ProductDetailsPage() {
         <section className="container section">
           <div className="state-card">
             <MdInventory2 size={34} />
-            <p>لا توجد منتجات مشابهة معروضة حاليًا لهذه الفئة.</p>
+            <p>{t("productDetailsPage.noRelated")}</p>
           </div>
         </section>
       )}

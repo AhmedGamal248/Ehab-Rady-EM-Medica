@@ -13,7 +13,6 @@ exports.createOrder = async (req, res, next) => {
     });
 
     const productIds = Array.from(quantityByProductId.keys());
-
     const products = await Product.find({ _id: { $in: productIds } })
       .select("name price stock image category")
       .lean();
@@ -98,6 +97,23 @@ exports.getAllOrders = async (req, res, next) => {
       .lean();
 
     success(res, orders);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getOrderById = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate("user", "name email phone")
+      .populate("items.product", "name price image category colors")
+      .lean();
+
+    if (!order) {
+      return error(res, "Order not found", 404);
+    }
+
+    success(res, order);
   } catch (err) {
     next(err);
   }

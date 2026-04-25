@@ -1,8 +1,4 @@
-const currencyFormatter = new Intl.NumberFormat("ar-EG", {
-  style: "currency",
-  currency: "EGP",
-  maximumFractionDigits: 0,
-});
+import i18n from "../i18n";
 
 const placeholderSvg = encodeURIComponent(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
@@ -15,7 +11,7 @@ const placeholderSvg = encodeURIComponent(`
     <rect width="800" height="600" rx="36" fill="url(#bg)" />
     <circle cx="400" cy="250" r="120" fill="#0f6e8c" opacity="0.18" />
     <path d="M365 165h70c11 0 20 9 20 20v40h40c11 0 20 9 20 20v70c0 11-9 20-20 20h-40v40c0 11-9 20-20 20h-70c-11 0-20-9-20-20v-40h-40c-11 0-20-9-20-20v-70c0-11 9-20 20-20h40v-40c0-11 9-20 20-20Z" fill="#0f6e8c" opacity="0.88" />
-    <text x="400" y="470" fill="#35536b" font-family="Arial, sans-serif" font-size="34" font-weight="700" text-anchor="middle">MedStore</text>
+    <text x="400" y="470" fill="#35536b" font-family="Arial, sans-serif" font-size="34" font-weight="700" text-anchor="middle">EM Medica</text>
     <text x="400" y="512" fill="#5f7a8f" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">Medical equipment</text>
   </svg>
 `);
@@ -23,7 +19,13 @@ const placeholderSvg = encodeURIComponent(`
 export const productFallbackImage = `data:image/svg+xml;charset=UTF-8,${placeholderSvg}`;
 
 export function formatCurrency(value) {
-  return currencyFormatter.format(Number(value || 0));
+  const locale = i18n.resolvedLanguage === "ar" ? "ar-EG" : "en-US";
+
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "EGP",
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0));
 }
 
 export function getProductImage(product) {
