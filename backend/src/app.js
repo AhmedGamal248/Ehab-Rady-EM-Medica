@@ -74,7 +74,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ===== Static Files =====
+// ===== Backward-compatible Static Files =====
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // ===== Rate Limiting =====

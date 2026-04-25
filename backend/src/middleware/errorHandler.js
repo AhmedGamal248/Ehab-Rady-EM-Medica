@@ -36,6 +36,10 @@ module.exports = (err, req, res, next) => {
     return error(res, err.message || "Upload failed", 400);
   }
 
+  if (err.code === "CLOUDINARY_UPLOAD_FAILED") {
+    return error(res, "Image upload failed. Please try again.", err.statusCode || 502);
+  }
+
   const statusCode = err.statusCode || err.status || 500;
   const message =
     statusCode >= 500 && process.env.NODE_ENV === "production"

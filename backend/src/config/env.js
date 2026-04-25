@@ -21,7 +21,13 @@ const getAllowedOrigins = () => {
 };
 
 const validateEnv = () => {
-  const required = ["MONGO_URI", "JWT_SECRET"];
+  const required = [
+    "MONGO_URI",
+    "JWT_SECRET",
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET",
+  ];
 
   if (isProduction) {
     required.push("CLIENT_URL");

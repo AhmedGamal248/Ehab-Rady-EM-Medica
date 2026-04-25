@@ -13,6 +13,7 @@ import {
   MdSave,
 } from "react-icons/md";
 import api from "../../services/api";
+import { uploadImages } from "../../services/upload";
 import { formatCurrency, getProductImage } from "../../utils/formatters";
 
 function getProductsPayload(response) {
@@ -32,6 +33,16 @@ const initialForm = {
   image: "",
   images: [],
 };
+
+function getRequestErrorMessage(error, fallbackMessage) {
+  const validationErrors = error.response?.data?.errors;
+
+  if (Array.isArray(validationErrors) && validationErrors.length > 0) {
+    return validationErrors[0];
+  }
+
+  return error.response?.data?.message || fallbackMessage;
+}
 
 export default function AdminDashboardPage() {
   const { t } = useTranslation();
@@ -117,6 +128,16 @@ export default function AdminDashboardPage() {
     setShowForm(false);
   };
 
+  const uploadSelectedImages = async (files) => {
+    setUploading(true);
+
+    try {
+      return await uploadImages(files);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleMainImageUpload = async (event) => {
     const file = event.target.files?.[0];
     if (!file) {
@@ -124,23 +145,20 @@ export default function AdminDashboardPage() {
     }
 
     try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append("image", file);
-      const response = await api.post("/upload/single", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const [imageUrl] = await uploadSelectedImages([file]);
 
       setForm((currentValue) => ({
         ...currentValue,
-        image: response.data?.data?.url || response.data?.url || "",
+        image: imageUrl,
       }));
       toast.success(t("adminDashboardPage.uploadMainSuccess"));
-    } catch {
-      toast.error(t("adminDashboardPage.uploadMainError"));
-    } finally {
-      setUploading(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || t("adminDashboardPage.uploadMainError"));
+      event.target.value = "";
+      return;
     }
+
+    event.target.value = "";
   };
 
   const handleExtraImagesUpload = async (event) => {
@@ -150,24 +168,20 @@ export default function AdminDashboardPage() {
     }
 
     try {
-      setUploading(true);
-      const formData = new FormData();
-      files.forEach((file) => formData.append("images", file));
-      const response = await api.post("/upload/multiple", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      const nextUrls = response.data?.data?.urls || response.data?.urls || [];
+      const nextUrls = await uploadSelectedImages(files);
 
       setForm((currentValue) => ({
         ...currentValue,
         images: [...currentValue.images, ...nextUrls].slice(0, 5),
       }));
       toast.success(t("adminDashboardPage.uploadExtraSuccess"));
-    } catch {
-      toast.error(t("adminDashboardPage.uploadExtraError"));
-    } finally {
-      setUploading(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || t("adminDashboardPage.uploadExtraError"));
+      event.target.value = "";
+      return;
     }
+
+    event.target.value = "";
   };
 
   const handleSubmit = async (event) => {
@@ -190,8 +204,8 @@ export default function AdminDashboardPage() {
 
       resetForm();
       setProducts(await fetchProducts());
-    } catch {
-      toast.error(t("adminDashboardPage.saveError"));
+    } catch (error) {
+      toast.error(getRequestErrorMessage(error, t("adminDashboardPage.saveError")));
     }
   };
 
@@ -302,6 +316,7 @@ export default function AdminDashboardPage() {
                   <label>
                     {t("adminDashboardPage.productName")}
                     <input
+                      minLength={2}
                       onChange={(event) =>
                         setForm((currentValue) => ({
                           ...currentValue,
@@ -317,6 +332,7 @@ export default function AdminDashboardPage() {
                   <label>
                     {t("common.category")}
                     <input
+                      minLength={2}
                       onChange={(event) =>
                         setForm((currentValue) => ({
                           ...currentValue,
@@ -364,6 +380,7 @@ export default function AdminDashboardPage() {
                   <label className="admin-form__full">
                     {t("common.description")}
                     <textarea
+                      minLength={10}
                       onChange={(event) =>
                         setForm((currentValue) => ({
                           ...currentValue,
