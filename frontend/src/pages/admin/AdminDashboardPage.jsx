@@ -11,6 +11,8 @@ import {
   MdOutlinePayments,
   MdPendingActions,
   MdSave,
+  MdPhone,
+  MdAccessTime,
 } from "react-icons/md";
 import api from "../../services/api";
 import { uploadImages } from "../../services/upload";
@@ -22,6 +24,18 @@ function getProductsPayload(response) {
 
 function getOrdersPayload(response) {
   return response.data?.data || response.data || [];
+}
+
+function formatDate(dateString) {
+  if (!dateString) return "—";
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat("ar-EG", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
 
 const initialForm = {
@@ -476,17 +490,17 @@ export default function AdminDashboardPage() {
 
               {products.map((product) => (
                 <article className="admin-table__row" key={product._id}>
-                  <div className="admin-product">
+                  <div className="admin-product" data-label={t("adminDashboardPage.productTable.product")}>
                     <img alt={product.name} src={getProductImage(product)} />
                     <div>
                       <strong>{product.name}</strong>
                       <small>{product.description}</small>
                     </div>
                   </div>
-                  <span>{product.category}</span>
-                  <strong>{formatCurrency(product.price)}</strong>
-                  <span>{product.stock}</span>
-                  <div className="admin-row__actions">
+                  <span data-label={t("adminDashboardPage.productTable.category")}>{product.category}</span>
+                  <strong data-label={t("adminDashboardPage.productTable.price")}>{formatCurrency(product.price)}</strong>
+                  <span data-label={t("adminDashboardPage.productTable.stock")}>{product.stock}</span>
+                  <div className="admin-row__actions" data-label={t("adminDashboardPage.productTable.actions")}>
                     <button className="icon-button" onClick={() => handleEdit(product)} type="button">
                       <MdEdit size={18} />
                     </button>
@@ -503,10 +517,12 @@ export default function AdminDashboardPage() {
             </div>
           </>
         ) : (
-          <div className="admin-table">
+          <div className="admin-table admin-table--orders">
             <div className="admin-table__head">
               <span>{t("adminDashboardPage.ordersTable.customer")}</span>
+              <span>{t("adminDashboardPage.ordersTable.phone")}</span>
               <span>{t("adminDashboardPage.ordersTable.address")}</span>
+              <span>{t("adminDashboardPage.ordersTable.date")}</span>
               <span>{t("adminDashboardPage.ordersTable.total")}</span>
               <span>{t("adminDashboardPage.ordersTable.status")}</span>
               <span>{t("adminDashboardPage.ordersTable.update")}</span>
@@ -514,13 +530,28 @@ export default function AdminDashboardPage() {
 
             {orders.map((order) => (
               <article className="admin-table__row" key={order._id}>
-                <span>{order.user?.name || t("adminDashboardPage.unknownCustomer")}</span>
-                <span>{order.address}</span>
-                <strong>{formatCurrency(order.total)}</strong>
-                <span className={`status-pill status-pill--${order.status}`}>
+                <span data-label={t("adminDashboardPage.ordersTable.customer")}>
+                  {order.user?.name || t("adminDashboardPage.unknownCustomer")}
+                </span>
+                <span data-label={t("adminDashboardPage.ordersTable.phone")} className="admin-order__phone">
+                  <MdPhone size={14} />
+                  {order.phone || order.user?.phone || "—"}
+                </span>
+                <span data-label={t("adminDashboardPage.ordersTable.address")}>
+                  {order.address}
+                </span>
+                <span data-label={t("adminDashboardPage.ordersTable.date")} className="admin-order__date">
+                  <MdAccessTime size={14} />
+                  {formatDate(order.createdAt)}
+                </span>
+                <strong data-label={t("adminDashboardPage.ordersTable.total")}>
+                  {formatCurrency(order.total)}
+                </strong>
+                <span data-label={t("adminDashboardPage.ordersTable.status")} className={`status-pill status-pill--${order.status}`}>
                   {getStatusLabel(order.status)}
                 </span>
                 <select
+                  data-label={t("adminDashboardPage.ordersTable.update")}
                   onChange={(event) => handleStatusChange(order._id, event.target.value)}
                   value={order.status}
                 >

@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { MdFilterList, MdInventory2, MdSearch } from "react-icons/md";
+import { MdFilterList, MdInventory2, MdSearch, MdSort } from "react-icons/md";
 import api from "../services/api";
 import MedicalProductCard from "../components/MedicalProductCard";
 
@@ -19,6 +19,7 @@ export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
+  const [sort, setSort] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const deferredSearch = useDeferredValue(search);
@@ -65,7 +66,7 @@ export default function ProductsPage() {
   const filteredProducts = useMemo(() => {
     const normalizedSearch = deferredSearch.trim().toLowerCase();
 
-    return products.filter((product) => {
+    let result = products.filter((product) => {
       const matchesCategory = category ? product.category === category : true;
       const matchesSearch = normalizedSearch
         ? `${product.name} ${product.description}`.toLowerCase().includes(normalizedSearch)
@@ -73,7 +74,12 @@ export default function ProductsPage() {
 
       return matchesCategory && matchesSearch;
     });
-  }, [category, deferredSearch, products]);
+
+    if (sort === "price-asc") result = [...result].sort((a, b) => a.price - b.price);
+    if (sort === "price-desc") result = [...result].sort((a, b) => b.price - a.price);
+
+    return result;
+  }, [category, deferredSearch, products, sort]);
 
   return (
     <div className="page">
@@ -81,7 +87,7 @@ export default function ProductsPage() {
         <div className="container page-hero__content">
           <span className="eyebrow eyebrow--solid">{t("productsPage.heroEyebrow")}</span>
           <h1>{t("productsPage.heroTitle")}</h1>
-          <p>{t("productsPage.heroDescription")}</p>
+          {/* <p>{t("productsPage.heroDescription")}</p> */}
         </div>
       </section>
 
@@ -111,12 +117,21 @@ export default function ProductsPage() {
               ))}
             </select>
           </label>
+
+          <label className="input-shell input-shell--select">
+            <MdSort size={20} />
+            <select onChange={(event) => setSort(event.target.value)} value={sort}>
+              <option value="">{t("productsPage.sortDefault")}</option>
+              <option value="price-asc">{t("productsPage.sortPriceAsc")}</option>
+              <option value="price-desc">{t("productsPage.sortPriceDesc")}</option>
+            </select>
+          </label>
         </div>
 
         <div className="section-heading section-heading--inline">
           <div>
             <span className="eyebrow">{t("productsPage.resultsEyebrow")}</span>
-            <h2>{t("productsPage.availableCount", { count: filteredProducts.length })}</h2>
+            <h3>{t("productsPage.availableCount", { count: filteredProducts.length })}</h3>
           </div>
         </div>
 

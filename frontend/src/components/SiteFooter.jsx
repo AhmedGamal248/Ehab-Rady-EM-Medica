@@ -22,11 +22,11 @@ export default function SiteFooter() {
           </span>
           <div>
             <h2>EM Medica</h2>
-            <p>{t("footer.brandDescription")}</p>
+            {/* <p>{t("footer.brandDescription")}</p> */}
           </div>
         </div>
 
-        <div>
+        {/* <div>
           <h3 className="site-footer__title">{t("footer.categoriesTitle")}</h3>
           <div className="site-footer__links">
             {categories.map((category) => (
@@ -35,7 +35,7 @@ export default function SiteFooter() {
               </Link>
             ))}
           </div>
-        </div>
+        </div> */}
 
         <div>
           <h3 className="site-footer__title">{t("footer.contactTitle")}</h3>

@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import SiteFooter from "./components/SiteFooter";
 import SiteHeader from "./components/SiteHeader";
+import FloatingCart from "./components/FloatingCart";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
 const ProductsPage = lazy(() => import("./pages/ProductsPage"));
@@ -18,6 +19,7 @@ const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const OrderPage = lazy(() => import("./pages/OrderPage"));
 const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 function RouteFallback() {
   const { t } = useTranslation();
@@ -68,11 +70,13 @@ export default function App() {
                       }
                       path="/admin"
                     />
+                    <Route element={<NotFoundPage />} path="*" />
                   </Routes>
                 </Suspense>
               </main>
               <SiteFooter />
             </div>
+            <FloatingCart />
             <Toaster
               position="top-center"
               toastOptions={{

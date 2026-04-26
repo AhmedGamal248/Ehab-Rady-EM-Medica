@@ -103,7 +103,10 @@
     ],
     "ctaEyebrow": "Ready to start",
     "ctaTitle": "Start browsing now and choose the right medical products with confidence",
-    "ctaButton": "View Catalog"
+    "ctaButton": "View Catalog",
+    "featuredEyebrow": "Featured products",
+    "featuredTitle": "Top picks for you",
+    "featuredBrowseAll": "Browse all products"
   },
   "productsPage": {
     "heroEyebrow": "Medical catalog",
@@ -115,7 +118,10 @@
     "availableCount": "{{count}} products available",
     "loading": "Loading products...",
     "loadError": "Unable to load products right now.",
-    "empty": "No products match these filters."
+    "empty": "No products match these filters.",
+    "sortDefault": "Sort by",
+    "sortPriceAsc": "Price: Low to High",
+    "sortPriceDesc": "Price: High to Low"
   },
   "productCard": {
     "addedSuccess": "Product added to cart",
@@ -271,7 +277,9 @@
     },
     "ordersTable": {
       "customer": "Customer",
+      "phone": "Phone",
       "address": "Address",
+      "date": "Date",
       "total": "Total",
       "status": "Status",
       "update": "Update"
@@ -279,5 +287,10 @@
     "unknownCustomer": "Unknown",
     "statusUpdated": "Order status updated",
     "statusUpdateError": "Unable to update the order status"
+  },
+  "notFoundPage": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to Home"
   }
 }

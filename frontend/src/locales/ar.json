@@ -103,7 +103,10 @@
     ],
     "ctaEyebrow": "جاهز للبدء",
     "ctaTitle": "ابدأ التصفح الآن واختر ما يناسب احتياجك الطبي بثقة",
-    "ctaButton": "عرض الكتالوج"
+    "ctaButton": "عرض الكتالوج",
+    "featuredEyebrow": "منتجات مختارة",
+    "featuredTitle": "أبرز المنتجات المتاحة",
+    "featuredBrowseAll": "تصفح جميع المنتجات"
   },
   "productsPage": {
     "heroEyebrow": "الكتالوج الطبي",
@@ -115,7 +118,10 @@
     "availableCount": "{{count}} منتج متاح",
     "loading": "جاري تحميل المنتجات...",
     "loadError": "تعذر تحميل المنتجات حاليًا.",
-    "empty": "لم نجد منتجات تطابق هذه المعايير."
+    "empty": "لم نجد منتجات تطابق هذه المعايير.",
+    "sortDefault": "ترتيب حسب",
+    "sortPriceAsc": "السعر: من الأقل للأعلى",
+    "sortPriceDesc": "السعر: من الأعلى للأقل"
   },
   "productCard": {
     "addedSuccess": "تمت إضافة المنتج إلى السلة",
@@ -271,7 +277,9 @@
     },
     "ordersTable": {
       "customer": "العميل",
+      "phone": "الهاتف",
       "address": "العنوان",
+      "date": "التوقيت",
       "total": "الإجمالي",
       "status": "الحالة",
       "update": "التحديث"
@@ -279,5 +287,10 @@
     "unknownCustomer": "غير معروف",
     "statusUpdated": "تم تحديث حالة الطلب",
     "statusUpdateError": "تعذر تحديث حالة الطلب"
+  },
+  "notFoundPage": {
+    "title": "الصفحة غير موجودة",
+    "description": "الصفحة اللي بتدور عليها مش موجودة أو اتنقلت.",
+    "backHome": "العودة للرئيسية"
   }
 }

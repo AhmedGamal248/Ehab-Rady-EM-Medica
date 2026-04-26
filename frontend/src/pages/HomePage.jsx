@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
@@ -6,6 +7,8 @@ import {
   MdOutlineFactCheck,
   MdSupportAgent,
 } from "react-icons/md";
+import api from "../services/api";
+import MedicalProductCard from "../components/MedicalProductCard";
 
 const trustIcons = [
   <MdOutlineFactCheck key="fact-check" size={24} />,
@@ -13,11 +16,23 @@ const trustIcons = [
   <MdSupportAgent key="support" size={24} />,
 ];
 
+function getProductsPayload(response) {
+  return response.data?.data?.data || response.data?.data || response.data || [];
+}
+
 export default function HomePage() {
   const { t } = useTranslation();
   const trustHighlights = t("homePage.trustHighlights", { returnObjects: true });
   const metrics = t("homePage.metrics", { returnObjects: true });
   const heroCategories = t("homePage.heroCategories", { returnObjects: true });
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+
+  useEffect(() => {
+    api
+      .get("/products")
+      .then((res) => setFeaturedProducts(getProductsPayload(res).slice(0, 3)))
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="page page--home">
@@ -37,9 +52,7 @@ export default function HomePage() {
                 {t("homePage.heroCreateAccount")}
               </Link>
             </div>
-            <div className="hero-section__trust-row">
-              <span>{t("homePage.pricingClarity")}</span>
-            </div>
+           
           </div>
 
           <div className="hero-section__panel">
@@ -55,7 +68,6 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
-              <div className="hero-panel__note" />
             </div>
           </div>
         </div>
@@ -72,23 +84,27 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="container section">
-        <div className="section-heading">
-          <span className="eyebrow">{t("homePage.whyEyebrow")}</span>
-          <h2>{t("homePage.whyTitle")}</h2>
-          <p>{t("homePage.whyDescription")}</p>
-        </div>
+      
 
-        <div className="feature-grid">
-          {trustHighlights.map((item, index) => (
-            <article key={item.title} className="feature-card">
-              <span className="feature-card__icon">{trustIcons[index]}</span>
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+      {featuredProducts.length > 0 && (
+        <section className="container section">
+          <div className="section-heading section-heading--inline">
+            <div>
+              {/* <span className="eyebrow">{t("homePage.featuredEyebrow")}</span> */}
+              <h2>{t("homePage.featuredTitle")}</h2>
+            </div>
+            <Link className="button button--secondary" to="/products">
+              {t("homePage.featuredBrowseAll")}
+            </Link>
+          </div>
+
+          <div className="product-grid product-grid--featured">
+            {featuredProducts.map((product) => (
+              <MedicalProductCard key={product._id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="container section">
         <div className="cta-banner">
