@@ -86,25 +86,27 @@ export default function HomePage() {
 
       
 
-      {featuredProducts.length > 0 && (
-        <section className="container section">
-          <div className="section-heading section-heading--inline">
-            <div>
-              {/* <span className="eyebrow">{t("homePage.featuredEyebrow")}</span> */}
-              <h2>{t("homePage.featuredTitle")}</h2>
+      <section className="container section">
+        {featuredProducts.length > 0 && (
+          <>
+            <div className="section-heading section-heading--inline">
+              <div>
+                {/* <span className="eyebrow">{t("homePage.featuredEyebrow")}</span> */}
+                <h2>{t("homePage.featuredTitle")}</h2>
+              </div>
+              <Link className="button button--secondary" to="/products">
+                {t("homePage.featuredBrowseAll")}
+              </Link>
             </div>
-            <Link className="button button--secondary" to="/products">
-              {t("homePage.featuredBrowseAll")}
-            </Link>
-          </div>
 
-          <div className="product-grid product-grid--featured">
-            {featuredProducts.map((product) => (
-              <MedicalProductCard key={product._id} product={product} />
-            ))}
-          </div>
-        </section>
-      )}
+            <div className="product-grid product-grid--featured">
+              {featuredProducts.map((product) => (
+                <MedicalProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          </>
+        )}
+      </section>
 
       <section className="container section">
         <div className="cta-banner">

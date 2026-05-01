@@ -75,7 +75,10 @@ app.use((req, res, next) => {
 });
 
 // ===== Backward-compatible Static Files =====
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads"), {
+  maxAge: "7d",
+  immutable: true,
+}));
 
 // ===== Rate Limiting =====
 app.use("/api", generalLimiter);

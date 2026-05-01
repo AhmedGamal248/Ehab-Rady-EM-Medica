@@ -18,6 +18,20 @@ const placeholderSvg = encodeURIComponent(`
 
 export const productFallbackImage = `data:image/svg+xml;charset=UTF-8,${placeholderSvg}`;
 
+/**
+ * Apply Cloudinary responsive transforms to image URLs.
+ * Converts: .../upload/v123/path.jpg → .../upload/w_400,q_auto,f_auto/v123/path.jpg
+ */
+export function optimizeCloudinaryUrl(url, width = 400) {
+  if (!url || !url.includes("res.cloudinary.com")) return url;
+
+  // Insert transforms before /v[version]/ or after /upload/
+  return url.replace(
+    /\/upload\/(v\d+\/)/,
+    `/upload/w_${width},q_auto,f_auto,c_limit/$1`
+  );
+}
+
 export function formatCurrency(value) {
   const locale = i18n.resolvedLanguage === "ar" ? "ar-EG" : "en-US";
 
@@ -29,7 +43,15 @@ export function formatCurrency(value) {
 }
 
 export function getProductImage(product) {
-  return product?.image || product?.images?.[0] || productFallbackImage;
+  const raw = product?.image || product?.images?.[0];
+  if (!raw) return productFallbackImage;
+  return optimizeCloudinaryUrl(raw, 400);
+}
+
+export function getProductImageFull(product) {
+  const raw = product?.image || product?.images?.[0];
+  if (!raw) return productFallbackImage;
+  return optimizeCloudinaryUrl(raw, 800);
 }
 
 export function handleProductImageError(event) {

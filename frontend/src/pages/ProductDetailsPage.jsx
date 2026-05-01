@@ -17,7 +17,9 @@ import { useCart } from "../context/CartContext";
 import {
   formatCurrency,
   getProductImage,
+  getProductImageFull,
   handleProductImageError,
+  optimizeCloudinaryUrl,
 } from "../utils/formatters";
 
 function getSingleProductPayload(response) {
@@ -165,7 +167,10 @@ export default function ProductDetailsPage() {
             <img
               alt={product.name}
               onError={handleProductImageError}
-              src={images[activeImageIndex] || getProductImage(product)}
+              src={optimizeCloudinaryUrl(images[activeImageIndex], 800) || getProductImageFull(product)}
+              width={600}
+              height={600}
+              fetchPriority="high"
             />
             <span className="product-details__verified">
               <MdVerifiedUser size={16} />
@@ -199,7 +204,10 @@ export default function ProductDetailsPage() {
                       index: index + 1,
                     })}
                     onError={handleProductImageError}
-                    src={image}
+                    src={optimizeCloudinaryUrl(image, 100)}
+                    width={84}
+                    height={84}
+                    loading="lazy"
                   />
                 </button>
               ))}
@@ -314,6 +322,9 @@ export default function ProductDetailsPage() {
                   alt={item.name}
                   onError={handleProductImageError}
                   src={getProductImage(item)}
+                  width={84}
+                  height={84}
+                  loading="lazy"
                 />
                 <div>
                   <span className="eyebrow">{item.category}</span>

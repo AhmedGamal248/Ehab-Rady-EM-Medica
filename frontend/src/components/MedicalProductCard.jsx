@@ -43,6 +43,8 @@ function MedicalProductCard({ product }) {
           loading="lazy"
           onError={handleProductImageError}
           src={getProductImage(product)}
+          width={400}
+          height={364}
         />
         <span className="product-card__badge">
           <MdVerifiedUser size={16} />

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Manrope:wght@600;700;800&display=swap");
+/* Fonts loaded via <link> in index.html to avoid render-blocking @import */
 
 :root {
   color-scheme: light;
@@ -1784,4 +1784,30 @@ html[dir="rtl"] .floating-cart__count {
   .admin-table--orders .admin-table__row {
     grid-template-columns: 1fr;
   }
+}
+
+/* ── Skeleton Loading ── */
+.skeleton {
+  background: linear-gradient(90deg, var(--background-strong) 25%, var(--surface) 50%, var(--background-strong) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton--image {
+  border-radius: 22px;
+  width: 100%;
+}
+
+.skeleton--text {
+  border-radius: 8px;
+}
+
+.skeleton--button {
+  border-radius: 999px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

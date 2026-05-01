@@ -49,7 +49,14 @@ export default function SiteHeader() {
       <div className="container site-header__inner">
         <Link className="brand" to="/">
           <span className="brand__mark">
-            <img alt={t("header.brandAlt")} className="brand__logo" src="/web-logo.png" />
+            <img
+              alt={t("header.brandAlt")}
+              className="brand__logo"
+              src="/web-logo.png"
+              width={80}
+              height={80}
+              fetchPriority="high"
+            />
           </span>
           <span>
             <strong className="brand__name">EM Medica</strong>

@@ -37,6 +37,7 @@ exports.getAllProducts = async (req, res, next) => {
     const [total, products] = await Promise.all([
       Product.countDocuments(filter),
       Product.find(filter)
+        .select("name description price image category stock colors")
         .sort(sort)
         .skip(skip)
         .limit(lim)
@@ -48,6 +49,7 @@ exports.getAllProducts = async (req, res, next) => {
     // Save to cache
     cache.set(cacheKey, result);
 
+    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
     success(res, result);
   } catch (err) {
     next(err);
@@ -64,6 +66,7 @@ exports.getProduct = async (req, res, next) => {
     if (!product) return error(res, "Product not found", 404);
 
     cache.set(cacheKey, product);
+    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
     success(res, product);
   } catch (err) {
     next(err);
