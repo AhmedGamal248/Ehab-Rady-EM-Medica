@@ -139,7 +139,7 @@
     "verified": "منتج موثوق",
     "availableWithCount": "متاح ({{count}} قطعة)",
     "unavailable": "غير متاح",
-    "finalPrice": "السعر النهائي",
+    "finalPrice": "السعر",
     "quantity": "الكمية",
     "decreaseQuantity": "تقليل الكمية",
     "increaseQuantity": "زيادة الكمية",

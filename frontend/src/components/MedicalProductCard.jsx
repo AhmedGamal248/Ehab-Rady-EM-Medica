@@ -46,10 +46,7 @@ function MedicalProductCard({ product }) {
           width={400}
           height={364}
         />
-        <span className="product-card__badge">
-          <MdVerifiedUser size={16} />
-          {t("productCard.certified")}
-        </span>
+        
         {product.stock <= 0 ? (
           <span className="product-card__stock product-card__stock--empty">
             {t("productCard.outOfStock")}

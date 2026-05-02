@@ -139,7 +139,7 @@
     "verified": "Trusted product",
     "availableWithCount": "Available ({{count}} units)",
     "unavailable": "Unavailable",
-    "finalPrice": "Final price",
+    "finalPrice": "price",
     "quantity": "Quantity",
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",

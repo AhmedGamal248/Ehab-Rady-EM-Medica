@@ -172,10 +172,7 @@ export default function ProductDetailsPage() {
               height={600}
               fetchPriority="high"
             />
-            <span className="product-details__verified">
-              <MdVerifiedUser size={16} />
-              {t("productDetailsPage.verified")}
-            </span>
+            
             <span
               className={`product-details__availability ${
                 product.stock > 0 ? "is-available" : "is-unavailable"
@@ -267,29 +264,7 @@ export default function ProductDetailsPage() {
             </span>
           </button>
 
-          <div className="feature-grid feature-grid--compact">
-            <article className="feature-card feature-card--compact">
-              <span className="feature-card__icon">
-                <MdLocalShipping size={20} />
-              </span>
-              <h3>{t("productDetailsPage.shippingTitle")}</h3>
-              <p>{t("productDetailsPage.shippingDescription")}</p>
-            </article>
-            <article className="feature-card feature-card--compact">
-              <span className="feature-card__icon">
-                <MdSecurity size={20} />
-              </span>
-              <h3>{t("productDetailsPage.trustTitle")}</h3>
-              <p>{t("productDetailsPage.trustDescription")}</p>
-            </article>
-            <article className="feature-card feature-card--compact">
-              <span className="feature-card__icon">
-                <MdSupportAgent size={20} />
-              </span>
-              <h3>{t("productDetailsPage.supportTitle")}</h3>
-              <p>{t("productDetailsPage.supportDescription")}</p>
-            </article>
-          </div>
+          
         </div>
       </section>
 
