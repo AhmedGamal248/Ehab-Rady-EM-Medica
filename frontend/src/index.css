@@ -1475,7 +1475,7 @@ a:focus-visible {
   margin-top: 18px;
   display: grid;
   gap: 12px;
-  width: 80%;
+  width: 100%;
 }
 
   .section {

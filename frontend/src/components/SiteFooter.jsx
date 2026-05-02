@@ -18,7 +18,14 @@ export default function SiteFooter() {
       <div className="container site-footer__grid">
         <div className="site-footer__brand">
           <span className="brand__mark">
-            <MdMedicalServices size={22} />
+            <img
+              alt={t("header.brandAlt")}
+              className="brand__logo"
+              src="/web-logo.png"
+              width={80}
+              height={80}
+              fetchPriority="high"
+            />
           </span>
           <div>
             <h2>EM Medica</h2>
@@ -42,20 +49,17 @@ export default function SiteFooter() {
           <div className="site-footer__contact">
             <p>
               <MdPhoneInTalk size={18} />
-              <span dir="ltr">+20 100 000 0000</span>
+              <span dir="ltr">010 55200 312</span>
             </p>
             <p>
               <MdEmail size={18} />
-              <span>info@medstore.com</span>
+              <span>em@emmedica.com</span>
             </p>
             <p>
               <MdPlace size={18} />
               <span>{t("footer.city")}</span>
             </p>
-            <p>
-              <MdAccessTimeFilled size={18} />
-              <span>{t("footer.workingHours")}</span>
-            </p>
+           
           </div>
         </div>
       </div>
