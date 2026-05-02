@@ -44,16 +44,6 @@ export default function RegisterPage() {
   return (
     <div className="page auth-page">
       <div className="container auth-page__container">
-        <section className="auth-card auth-card--accent">
-          <span className="eyebrow eyebrow--solid">{t("registerPage.introEyebrow")}</span>
-          <h1>{t("registerPage.introTitle")}</h1>
-          <p>{t("registerPage.introDescription")}</p>
-          <ul className="auth-card__list">
-            {introPoints.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
 
         <section className="auth-card">
           <div className="section-heading section-heading--compact">
