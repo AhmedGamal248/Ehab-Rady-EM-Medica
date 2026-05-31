@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import * as THREE from "three";
@@ -7,18 +7,16 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import {
   MdArrowForward,
-  MdAutoAwesome,
-  MdHealthAndSafety,
-  MdMonitorHeart,
-  MdOutlineVerified,
-  MdSensors,
   MdShoppingCart,
 } from "react-icons/md";
 import api from "../services/api";
+import { isWebGLCapable } from "../utils/formatters";
 import MedicalProductCard from "../components/MedicalProductCard";
+import SkeletonProductCard from "../components/SkeletonProductCard";
 
 gsap.registerPlugin(ScrollTrigger);
 
+/* ── Static image fallbacks ─────────────────────────────────── */
 const imageProducts = [
   {
     name: "Cardiophone Stethoscope",
@@ -37,473 +35,462 @@ const imageProducts = [
   },
 ];
 
-function getProductsPayload(response) {
-  return response.data?.data?.data || response.data?.data || response.data || [];
+/* ── Helpers ─────────────────────────────────────────────────── */
+function getProductsPayload(res) {
+  return res.data?.data?.data || res.data?.data || res.data || [];
 }
 
+/* ── Three.js Utilities ─────────────────────────────────────── */
 function createTube(points, radius, color, metalness = 0.55) {
   const curve = new THREE.CatmullRomCurve3(points);
-  const geometry = new THREE.TubeGeometry(curve, 96, radius, 18, false);
-  const material = new THREE.MeshStandardMaterial({
+  const geo = new THREE.TubeGeometry(curve, 80, radius, 14, false);
+  const mat = new THREE.MeshStandardMaterial({
     color,
     metalness,
-    roughness: 0.24,
-    emissive: new THREE.Color(color).multiplyScalar(0.05),
+    roughness: 0.26,
+    emissive: new THREE.Color(color).multiplyScalar(0.04),
   });
-  return new THREE.Mesh(geometry, material);
+  return new THREE.Mesh(geo, mat);
 }
 
-function createRoundedBox(width, height, depth, color) {
-  const geometry = new THREE.BoxGeometry(width, height, depth, 4, 4, 4);
-  const material = new THREE.MeshPhysicalMaterial({
+function createBox(w, h, d, color) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const mat = new THREE.MeshPhysicalMaterial({
     color,
     metalness: 0.18,
-    roughness: 0.2,
-    clearcoat: 0.7,
-    transmission: 0.02,
+    roughness: 0.20,
+    clearcoat: 0.65,
   });
-  return new THREE.Mesh(geometry, material);
+  return new THREE.Mesh(geo, mat);
 }
 
-function setGroupPresentation(group, opacity, scale) {
-  group.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.08);
-  group.userData.presentationOpacity =
-    (group.userData.presentationOpacity ?? 1) + (opacity - (group.userData.presentationOpacity ?? 1)) * 0.08;
-  group.traverse((object) => {
-    if (!object.material) return;
-    const materials = Array.isArray(object.material) ? object.material : [object.material];
-    materials.forEach((material) => {
-      material.transparent = opacity < 1;
-      material.opacity = group.userData.presentationOpacity;
-      material.depthWrite = group.userData.presentationOpacity > 0.35;
+function fadeGroup(group, targetOpacity, targetScale) {
+  const currentOpacity = group.userData.opacity ?? 1;
+  const nextOpacity = currentOpacity + (targetOpacity - currentOpacity) * 0.07;
+  group.userData.opacity = nextOpacity;
+
+  const currentScale = group.scale.x;
+  const nextScale = currentScale + (targetScale - currentScale) * 0.07;
+  group.scale.setScalar(nextScale);
+
+  group.traverse((obj) => {
+    if (!obj.isMesh) return;
+    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+    mats.forEach((m) => {
+      m.transparent = nextOpacity < 0.99;
+      m.opacity = nextOpacity;
+      m.depthWrite = nextOpacity > 0.3;
     });
   });
 }
 
+/* ── Device Builders ─────────────────────────────────────────── */
 function buildStethoscope() {
-  const group = new THREE.Group();
-  const tubing = createTube(
+  const g = new THREE.Group();
+  const tube = createTube(
     [
       new THREE.Vector3(-1.1, 0.8, 0),
-      new THREE.Vector3(-0.8, 0.25, 0.16),
+      new THREE.Vector3(-0.8, 0.25, 0.14),
       new THREE.Vector3(0, -0.3, 0),
-      new THREE.Vector3(0.8, 0.25, -0.16),
+      new THREE.Vector3(0.8, 0.25, -0.14),
       new THREE.Vector3(1.1, 0.8, 0),
     ],
-    0.035,
-    "#61d7f8",
-    0.35,
+    0.033, "#61d7f8", 0.32,
   );
   const chest = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.32, 0.38, 0.12, 64),
-    new THREE.MeshPhysicalMaterial({
-      color: "#eef8ff",
-      metalness: 0.86,
-      roughness: 0.12,
-      clearcoat: 0.9,
-    }),
+    new THREE.CylinderGeometry(0.30, 0.36, 0.11, 56),
+    new THREE.MeshPhysicalMaterial({ color: "#eef8ff", metalness: 0.88, roughness: 0.10, clearcoat: 0.9 }),
   );
   chest.rotation.x = Math.PI / 2;
-  chest.position.set(0, -0.72, 0);
-  const diaphragm = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.24, 0.24, 0.13, 64),
-    new THREE.MeshStandardMaterial({
-      color: "#9fefff",
-      emissive: "#18bde6",
-      emissiveIntensity: 0.35,
-      metalness: 0.3,
-      roughness: 0.22,
-    }),
+  chest.position.set(0, -0.70, 0);
+  const glow = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.22, 0.22, 0.12, 56),
+    new THREE.MeshStandardMaterial({ color: "#9fefff", emissive: "#18bde6", emissiveIntensity: 0.32, metalness: 0.28, roughness: 0.22 }),
   );
-  diaphragm.rotation.x = Math.PI / 2;
-  diaphragm.position.set(0, -0.71, 0.02);
-  const leftEar = createTube(
-    [new THREE.Vector3(-1.1, 0.8, 0), new THREE.Vector3(-1.25, 1.22, 0.06)],
-    0.022,
-    "#d9eef7",
-    0.82,
-  );
-  const rightEar = createTube(
-    [new THREE.Vector3(1.1, 0.8, 0), new THREE.Vector3(1.25, 1.22, -0.06)],
-    0.022,
-    "#d9eef7",
-    0.82,
-  );
-  group.add(tubing, chest, diaphragm, leftEar, rightEar);
-  group.position.set(-0.15, -0.08, 0);
-  group.rotation.set(-0.08, -0.32, 0.08);
-  return group;
+  glow.rotation.x = Math.PI / 2;
+  glow.position.set(0, -0.70, 0.015);
+  const le = createTube([new THREE.Vector3(-1.1, 0.8, 0), new THREE.Vector3(-1.24, 1.20, 0.05)], 0.020, "#d9eef7", 0.80);
+  const re = createTube([new THREE.Vector3(1.1, 0.8, 0), new THREE.Vector3(1.24, 1.20, -0.05)], 0.020, "#d9eef7", 0.80);
+  g.add(tube, chest, glow, le, re);
+  g.position.set(-0.14, -0.08, 0);
+  g.rotation.set(-0.07, -0.30, 0.07);
+  return g;
 }
 
-function buildBloodPressureMonitor() {
-  const group = new THREE.Group();
-  const monitor = createRoundedBox(1.1, 0.78, 0.18, "#f7fbff");
-  monitor.position.set(0.72, -0.1, 0);
-  const screen = createRoundedBox(0.68, 0.32, 0.03, "#17324a");
-  screen.position.set(0.72, -0.02, 0.105);
-  const cuff = createRoundedBox(0.72, 0.95, 0.25, "#b8d7e6");
-  cuff.position.set(1.92, 0.02, -0.02);
-  cuff.rotation.z = -0.22;
+function buildBloodPressure() {
+  const g = new THREE.Group();
+  const mon = createBox(1.1, 0.76, 0.17, "#f7fbff");
+  mon.position.set(0.72, -0.10, 0);
+  const scr = createBox(0.66, 0.30, 0.025, "#17324a");
+  scr.position.set(0.72, -0.02, 0.105);
+  const cuff = createBox(0.70, 0.92, 0.24, "#b8d7e6");
+  cuff.position.set(1.90, 0.02, -0.02);
+  cuff.rotation.z = -0.20;
   const hose = createTube(
-    [
-      new THREE.Vector3(1.25, -0.28, 0.02),
-      new THREE.Vector3(1.5, -0.6, 0.15),
-      new THREE.Vector3(1.95, -0.48, 0.02),
-    ],
-    0.025,
-    "#43c7e8",
-    0.3,
+    [new THREE.Vector3(1.24, -0.27, 0.02), new THREE.Vector3(1.48, -0.58, 0.14), new THREE.Vector3(1.93, -0.46, 0.02)],
+    0.024, "#43c7e8", 0.28,
   );
   const glow = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.52, 0.045),
-    new THREE.MeshBasicMaterial({ color: "#66e7ff", transparent: true, opacity: 0.85 }),
+    new THREE.PlaneGeometry(0.50, 0.040),
+    new THREE.MeshBasicMaterial({ color: "#66e7ff", transparent: true, opacity: 0.82 }),
   );
-  glow.position.set(0.72, -0.02, 0.124);
-  group.add(monitor, screen, cuff, hose, glow);
-  group.position.set(-0.8, -0.12, 0.05);
-  group.rotation.set(0.08, 0.28, -0.04);
-  return group;
+  glow.position.set(0.72, -0.02, 0.122);
+  g.add(mon, scr, cuff, hose, glow);
+  g.position.set(-0.80, -0.12, 0.05);
+  g.rotation.set(0.07, 0.26, -0.04);
+  return g;
 }
 
 function buildThermometer() {
-  const group = new THREE.Group();
+  const g = new THREE.Group();
   const body = createTube(
-    [new THREE.Vector3(-0.75, -0.95, 0), new THREE.Vector3(0.65, -0.95, 0)],
-    0.07,
-    "#eef8ff",
-    0.3,
+    [new THREE.Vector3(-0.72, -0.95, 0), new THREE.Vector3(0.62, -0.95, 0)],
+    0.065, "#eef8ff", 0.28,
   );
   const tip = new THREE.Mesh(
-    new THREE.SphereGeometry(0.095, 32, 16),
-    new THREE.MeshStandardMaterial({
-      color: "#7ce6ff",
-      emissive: "#1abede",
-      emissiveIntensity: 0.4,
-      metalness: 0.2,
-      roughness: 0.18,
-    }),
+    new THREE.SphereGeometry(0.090, 28, 14),
+    new THREE.MeshStandardMaterial({ color: "#7ce6ff", emissive: "#1abede", emissiveIntensity: 0.38, metalness: 0.18, roughness: 0.17 }),
   );
-  tip.position.set(0.75, -0.95, 0);
-  const display = createRoundedBox(0.36, 0.11, 0.03, "#1a445d");
-  display.position.set(-0.12, -0.95, 0.075);
-  group.add(body, tip, display);
-  group.position.set(-0.15, 0.28, 0);
-  group.rotation.set(0.18, -0.34, -0.18);
-  return group;
+  tip.position.set(0.72, -0.95, 0);
+  const disp = createBox(0.34, 0.10, 0.025, "#1a445d");
+  disp.position.set(-0.12, -0.95, 0.072);
+  g.add(body, tip, disp);
+  g.position.set(-0.14, 0.28, 0);
+  g.rotation.set(0.17, -0.32, -0.17);
+  return g;
 }
 
-function buildDiagnosticTool() {
-  const group = new THREE.Group();
+function buildDiagnostic() {
+  const g = new THREE.Group();
   const handle = createTube(
-    [new THREE.Vector3(-1.42, -0.2, 0), new THREE.Vector3(-1.42, -1.15, 0)],
-    0.08,
-    "#eaf6fb",
-    0.72,
+    [new THREE.Vector3(-1.40, -0.20, 0), new THREE.Vector3(-1.40, -1.12, 0)],
+    0.076, "#eaf6fb", 0.70,
   );
   const head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.22, 48, 24),
-    new THREE.MeshPhysicalMaterial({
-      color: "#f8fcff",
-      metalness: 0.7,
-      roughness: 0.16,
-      clearcoat: 0.8,
-    }),
+    new THREE.SphereGeometry(0.21, 44, 22),
+    new THREE.MeshPhysicalMaterial({ color: "#f8fcff", metalness: 0.68, roughness: 0.14, clearcoat: 0.78 }),
   );
-  head.position.set(-1.42, -0.08, 0);
+  head.position.set(-1.40, -0.08, 0);
   const lens = new THREE.Mesh(
-    new THREE.CircleGeometry(0.12, 42),
-    new THREE.MeshBasicMaterial({ color: "#76eeff", transparent: true, opacity: 0.9 }),
+    new THREE.CircleGeometry(0.11, 38),
+    new THREE.MeshBasicMaterial({ color: "#76eeff", transparent: true, opacity: 0.88 }),
   );
-  lens.position.set(-1.42, -0.06, 0.215);
-  group.add(handle, head, lens);
-  group.position.set(1.1, 0.25, 0);
-  group.rotation.set(0.15, -0.28, 0.18);
-  return group;
+  lens.position.set(-1.40, -0.06, 0.212);
+  g.add(handle, head, lens);
+  g.position.set(1.08, 0.24, 0);
+  g.rotation.set(0.14, -0.26, 0.17);
+  return g;
 }
 
+/* ── WebGL Scene ─────────────────────────────────────────────── */
 function MedicalScene() {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isCompactViewport = window.matchMedia("(max-width: 760px)").matches;
+    const isCompact = window.innerWidth < 760;
+
+    /* Scene setup */
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, canvas });
-    const pointer = new THREE.Vector2();
-    const productRig = new THREE.Group();
-    const glowRig = new THREE.Group();
-    let activeDeviceIndex = 0;
+    camera.position.set(0, 0.05, 6.2);
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isCompactViewport ? 1.25 : 1.6));
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: !isCompact, canvas, powerPreference: "default" });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isCompact ? 1.2 : 1.5));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
-    camera.position.set(0, 0.05, 6.2);
+    renderer.toneMappingExposure = 1.08;
 
-    const keyLight = new THREE.DirectionalLight("#f9fdff", 4.4);
+    /* Lights */
+    const keyLight = new THREE.DirectionalLight("#f9fdff", 4.2);
     keyLight.position.set(2.8, 3.8, 4.4);
-    const cyanLight = new THREE.PointLight("#58e5ff", 32, 10);
+    const cyanLight = new THREE.PointLight("#58e5ff", 28, 10);
     cyanLight.position.set(-2.7, 1.6, 2.2);
-    const silverLight = new THREE.PointLight("#dcebf4", 8, 8);
-    silverLight.position.set(2.8, -1.8, 2.8);
-    scene.add(new THREE.AmbientLight("#dceef8", 1.7), keyLight, cyanLight, silverLight);
+    const fillLight = new THREE.PointLight("#dcebf4", 7, 8);
+    fillLight.position.set(2.8, -1.8, 2.8);
+    scene.add(new THREE.AmbientLight("#dceef8", 1.6), keyLight, cyanLight, fillLight);
 
-    const devices = [
-      buildStethoscope(),
-      buildBloodPressureMonitor(),
-      buildThermometer(),
-      buildDiagnosticTool(),
-    ];
-    const deviceLabels = ["stethoscope", "blood-pressure-monitor", "thermometer", "diagnostic-tool"];
-    devices.forEach((device, index) => {
-      device.userData.baseRotation = device.rotation.clone();
-      device.userData.floatOffset = index * 0.75;
-      productRig.add(device);
+    /* Devices */
+    const productRig = new THREE.Group();
+    const devices = [buildStethoscope(), buildBloodPressure(), buildThermometer(), buildDiagnostic()];
+    devices.forEach((d, i) => {
+      d.userData.baseRot = d.rotation.clone();
+      d.userData.floatOffset = i * 0.75;
+      d.userData.opacity = i === 0 ? 1 : 0;
+      if (i !== 0) d.scale.setScalar(0.72);
+      productRig.add(d);
     });
     scene.add(productRig);
 
-    const particles = new THREE.BufferGeometry();
-    const particleCount = isCompactViewport ? 72 : 150;
-    const positions = new Float32Array(particleCount * 3);
-    for (let index = 0; index < particleCount; index += 1) {
-      positions[index * 3] = (Math.random() - 0.5) * 8;
-      positions[index * 3 + 1] = (Math.random() - 0.5) * 5;
-      positions[index * 3 + 2] = (Math.random() - 0.5) * 4;
+    /* Particles — fewer on mobile */
+    const count = isCompact ? 60 : 130;
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3]     = (Math.random() - 0.5) * 8;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 5;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 4;
     }
-    particles.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    const particleSystem = new THREE.Points(
-      particles,
-      new THREE.PointsMaterial({
-        color: "#6cecff",
-        size: 0.018,
-        transparent: true,
-        opacity: 0.55,
-        depthWrite: false,
-      }),
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    const particles = new THREE.Points(
+      pGeo,
+      new THREE.PointsMaterial({ color: "#6cecff", size: 0.016, transparent: true, opacity: 0.50, depthWrite: false }),
     );
-    scene.add(particleSystem);
+    scene.add(particles);
 
-    [1.35, 1.85, 2.35].forEach((radius, index) => {
+    /* Rings */
+    const glowRig = new THREE.Group();
+    [1.35, 1.85, 2.35].forEach((r, i) => {
       const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(radius, 0.004, 12, 160),
-        new THREE.MeshBasicMaterial({ color: "#7deeff", transparent: true, opacity: 0.16 - index * 0.035 }),
+        new THREE.TorusGeometry(r, 0.003, 10, 140),
+        new THREE.MeshBasicMaterial({ color: "#7deeff", transparent: true, opacity: 0.14 - i * 0.03 }),
       );
-      ring.rotation.x = Math.PI / 2.4 + index * 0.14;
-      ring.rotation.y = index * 0.4;
+      ring.rotation.x = Math.PI / 2.4 + i * 0.13;
+      ring.rotation.y = i * 0.38;
       glowRig.add(ring);
     });
     scene.add(glowRig);
 
-    const cameraTween = gsap.timeline({
-      scrollTrigger: {
-        trigger: ".med-story",
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 1.1,
-      },
-    });
+    /* Camera scroll animation */
+    let cameraTween;
     if (!reducedMotion) {
+      cameraTween = gsap.timeline({
+        scrollTrigger: {
+          trigger: ".med-story",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1.2,
+        },
+      });
       cameraTween
-        .to(camera.position, { x: -0.55, y: 0.2, z: 5.1, ease: "power2.inOut" })
-        .to(camera.position, { x: 0.78, y: -0.05, z: 4.65, ease: "power2.inOut" })
-        .to(camera.position, { x: 0.15, y: 0.35, z: 5.35, ease: "power2.inOut" });
-      cameraTween.to(productRig.rotation, { y: Math.PI * 1.9, x: 0.16, ease: "power2.inOut" }, 0);
+        .to(camera.position, { x: -0.52, y: 0.18, z: 5.1, ease: "power2.inOut" })
+        .to(camera.position, { x: 0.75, y: -0.05, z: 4.70, ease: "power2.inOut" })
+        .to(camera.position, { x: 0.14, y: 0.32, z: 5.38, ease: "power2.inOut" });
+      cameraTween.to(productRig.rotation, { y: Math.PI * 1.9, x: 0.15, ease: "power2.inOut" }, 0);
     }
 
-    const chapterTriggers = gsap.utils.toArray(".chapter-card").map((element, index) =>
+    /* Active device tracking */
+    let activeIndex = 0;
+    const chapterTriggers = gsap.utils.toArray(".chapter-card").map((el, i) =>
       ScrollTrigger.create({
-        trigger: element,
-        start: "top 62%",
-        end: "bottom 42%",
-        onEnter: () => {
-          activeDeviceIndex = index;
-        },
-        onEnterBack: () => {
-          activeDeviceIndex = index;
-        },
+        trigger: el,
+        start: "top 64%",
+        end: "bottom 40%",
+        onEnter:     () => { activeIndex = i; },
+        onEnterBack: () => { activeIndex = i; },
       }),
     );
 
-    const handlePointer = (event) => {
-      pointer.x = (event.clientX / window.innerWidth - 0.5) * 2;
-      pointer.y = (event.clientY / window.innerHeight - 0.5) * 2;
+    /* Pointer */
+    const pointer = new THREE.Vector2();
+    const onPointer = (e) => {
+      pointer.x = (e.clientX / window.innerWidth - 0.5) * 2;
+      pointer.y = (e.clientY / window.innerHeight - 0.5) * 2;
     };
+    window.addEventListener("pointermove", onPointer, { passive: true });
 
-    const handleResize = () => {
+    /* Resize */
+    const onResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
+    window.addEventListener("resize", onResize, { passive: true });
 
-    window.addEventListener("pointermove", handlePointer);
-    window.addEventListener("resize", handleResize);
+    /* Render loop */
+    let raf = 0;
+    let frame = 0;
 
-    let animationFrame = 0;
-    let renderFrames = 0;
-    const render = () => {
-      const elapsed = performance.now() * 0.001;
+    const tick = () => {
       if (!document.hidden && !reducedMotion) {
-        productRig.rotation.y += 0.0025;
-        productRig.rotation.x += (pointer.y * 0.08 - productRig.rotation.x) * 0.035;
-        productRig.position.x += (pointer.x * 0.18 - productRig.position.x) * 0.035;
-        glowRig.rotation.z = elapsed * 0.08;
-        particleSystem.rotation.y = elapsed * 0.025;
-        cyanLight.intensity = 24 + Math.sin(elapsed * 1.5) * 5;
-        devices.forEach((device, index) => {
-          const isActive = index === activeDeviceIndex;
-          const targetOpacity = isActive ? 1 : 0;
-          const targetScale = isActive ? 1.18 : 0.72;
-          device.visible = isActive || (device.userData.presentationOpacity ?? 1) > 0.03;
-          device.rotation.x =
-            device.userData.baseRotation.x + Math.sin(elapsed * 0.8 + device.userData.floatOffset) * 0.025;
-          device.rotation.z =
-            device.userData.baseRotation.z + Math.cos(elapsed * 0.65 + device.userData.floatOffset) * 0.018;
-          setGroupPresentation(device, targetOpacity, targetScale);
+        const t = performance.now() * 0.001;
+        productRig.rotation.y += 0.0020;
+        productRig.rotation.x += (pointer.y * 0.07 - productRig.rotation.x) * 0.030;
+        productRig.position.x += (pointer.x * 0.16 - productRig.position.x) * 0.030;
+        glowRig.rotation.z = t * 0.07;
+        particles.rotation.y = t * 0.022;
+        cyanLight.intensity = 22 + Math.sin(t * 1.4) * 4;
+
+        devices.forEach((d, i) => {
+          const active = i === activeIndex;
+          fadeGroup(d, active ? 1 : 0, active ? 1.18 : 0.72);
+          d.visible = d.userData.opacity > 0.02;
+          if (d.visible) {
+            d.rotation.x = d.userData.baseRot.x + Math.sin(t * 0.78 + d.userData.floatOffset) * 0.022;
+            d.rotation.z = d.userData.baseRot.z + Math.cos(t * 0.62 + d.userData.floatOffset) * 0.016;
+          }
         });
       }
+
       renderer.render(scene, camera);
-      renderFrames += 1;
-      if (renderFrames === 1 || renderFrames % 30 === 0) {
-        canvas.dataset.renderFrames = String(renderFrames);
+      frame++;
+      if (frame === 1 || frame % 60 === 0) {
         canvas.dataset.webgl = "active";
-        canvas.dataset.activeDevice = deviceLabels[activeDeviceIndex];
+        canvas.dataset.frame = String(frame);
       }
-      animationFrame = window.requestAnimationFrame(render);
+      raf = window.requestAnimationFrame(tick);
     };
-    render();
+    tick();
 
     return () => {
-      window.cancelAnimationFrame(animationFrame);
-      window.removeEventListener("pointermove", handlePointer);
-      window.removeEventListener("resize", handleResize);
-      cameraTween.kill();
-      chapterTriggers.forEach((trigger) => trigger.kill());
-      scene.traverse((object) => {
-        if (object.geometry) object.geometry.dispose();
-        if (object.material) {
-          if (Array.isArray(object.material)) {
-            object.material.forEach((material) => material.dispose());
-          } else {
-            object.material.dispose();
-          }
+      window.cancelAnimationFrame(raf);
+      window.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("resize", onResize);
+      cameraTween?.kill();
+      chapterTriggers.forEach((t) => t.kill());
+      /* Dispose all geometries & materials */
+      scene.traverse((obj) => {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+          (Array.isArray(obj.material) ? obj.material : [obj.material])
+            .forEach((m) => m.dispose());
         }
       });
       renderer.dispose();
     };
   }, []);
 
-  return <canvas aria-label="Realtime 3D medical product visualization" className="medical-webgl" ref={canvasRef} />;
+  return (
+    <canvas
+      aria-label="Real-time 3D medical product visualization"
+      aria-hidden="true"
+      className="medical-webgl"
+      ref={canvasRef}
+    />
+  );
 }
 
+/* ── Home Page ─────────────────────────────────────────────────── */
 export default function HomePage() {
   const { t } = useTranslation();
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
   const productChapters = t("premiumHome.productChapters", { returnObjects: true });
   const metrics = t("premiumHome.metrics", { returnObjects: true });
   const signals = t("premiumHome.signals", { returnObjects: true });
 
+  /* Smooth scroll + API fetch */
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const lenis = reducedMotion
-      ? null
-      : new Lenis({
-          duration: 1,
-          easing: (time) => Math.min(1, 1.001 - 2 ** (-10 * time)),
-          smoothWheel: true,
-          wheelMultiplier: 0.9,
-        });
-    let animationFrame = 0;
-    const raf = (time) => {
-      lenis?.raf(time);
-      animationFrame = requestAnimationFrame(raf);
-    };
-    if (lenis) {
-      lenis.on("scroll", ScrollTrigger.update);
-      animationFrame = requestAnimationFrame(raf);
+
+    /* Lenis smooth scroll — properly integrated with GSAP */
+    let lenis = null;
+    let lenisRaf = null;
+    let rafId = 0;
+
+    if (!reducedMotion) {
+      lenis = new Lenis({
+        duration: 1.1,
+        easing: (t) => Math.min(1, 1.001 - 2 ** (-10 * t)),
+        smoothWheel: true,
+        wheelMultiplier: 0.88,
+        touchMultiplier: 1.4,
+      });
+
+      /* Sync Lenis RAF with GSAP's ticker — store ref for cleanup */
+      lenisRaf = (time) => { lenis.raf(time * 1000); };
+      gsap.ticker.add(lenisRaf);
+      gsap.ticker.lagSmoothing(0);
     }
 
-    api
-      .get("/products")
+    /* Products */
+    api.get("/products")
       .then((res) => setFeaturedProducts(getProductsPayload(res).slice(0, 3)))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoadingProducts(false));
 
+    /* GSAP animations */
     const ctx = gsap.context(() => {
       if (reducedMotion) {
         gsap.set(".med-hero__copy > *, .reveal-up, .chapter-card", {
-          autoAlpha: 1,
-          y: 0,
-          scale: 1,
+          autoAlpha: 1, y: 0, scale: 1,
         });
         return;
       }
 
+      /* Hero entrance — staggered */
       gsap.from(".med-hero__copy > *", {
         autoAlpha: 0,
-        y: 34,
-        duration: 0.9,
+        y: 32,
+        duration: 0.95,
         ease: "power3.out",
-        stagger: 0.11,
+        stagger: 0.10,
+        delay: 0.15,
       });
-      gsap.utils.toArray(".reveal-up").forEach((element) => {
-        gsap.from(element, {
+
+      /* Dashboard floats entrance */
+      gsap.from(".dashboard-float", {
+        autoAlpha: 0,
+        y: 24,
+        duration: 0.8,
+        ease: "power2.out",
+        stagger: 0.15,
+        delay: 0.5,
+      });
+
+      /* Reveal on scroll */
+      gsap.utils.toArray(".reveal-up").forEach((el) => {
+        gsap.from(el, {
           autoAlpha: 0,
-          y: 54,
-          duration: 0.85,
+          y: 50,
+          duration: 0.88,
           ease: "power3.out",
-          scrollTrigger: {
-            trigger: element,
-            start: "top 82%",
-          },
+          scrollTrigger: { trigger: el, start: "top 83%" },
         });
       });
-      gsap.utils.toArray(".chapter-card").forEach((element) => {
-        gsap.fromTo(
-          element,
-          { autoAlpha: 0.35, y: 90, scale: 0.96 },
+
+      /* Chapter cards */
+      gsap.utils.toArray(".chapter-card").forEach((el) => {
+        gsap.fromTo(el,
+          { autoAlpha: 0.30, y: 80, scale: 0.97 },
           {
-            autoAlpha: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.9,
-            ease: "power2.out",
+            autoAlpha: 1, y: 0, scale: 1,
+            duration: 0.92, ease: "power2.out",
             scrollTrigger: {
-              trigger: element,
-              start: "top 76%",
-              end: "bottom 38%",
-              scrub: 0.8,
+              trigger: el,
+              start: "top 77%",
+              end: "bottom 36%",
+              scrub: 0.9,
             },
           },
         );
       });
+
+      /* Parallax floats */
       gsap.to(".dashboard-float--left", {
-        yPercent: -28,
+        yPercent: -26,
         ease: "none",
         scrollTrigger: {
           trigger: ".med-hero",
           start: "top top",
           end: "bottom top",
-          scrub: 1,
+          scrub: 1.1,
         },
       });
       gsap.to(".dashboard-float--right", {
-        yPercent: 35,
+        yPercent: 32,
         ease: "none",
         scrollTrigger: {
           trigger: ".med-hero",
           start: "top top",
           end: "bottom top",
-          scrub: 1,
+          scrub: 1.1,
         },
       });
     });
 
     return () => {
       ctx.revert();
-      if (animationFrame) cancelAnimationFrame(animationFrame);
-      lenis?.destroy();
+      if (rafId) cancelAnimationFrame(rafId);
+      if (lenis) {
+        if (lenisRaf) gsap.ticker.remove(lenisRaf);
+        lenis.destroy();
+      }
     };
   }, []);
 
@@ -511,44 +498,57 @@ export default function HomePage() {
 
   return (
     <div className="page med-page">
-      <MedicalScene />
+      {isWebGLCapable() && <MedicalScene />}
 
-      <section className="med-hero">
+      {/* ── Hero ─────────────────────────────────────────────── */}
+      <section className="med-hero" aria-label="Hero">
         <div className="container med-hero__inner">
           <div className="med-hero__copy">
-            
-            <h1>EM Medica</h1>
+            <h1>EM<br />Medica</h1>
             <div className="med-hero__actions">
-              <Link className="button button--secondary button--large med-button" to="/products">
+              <Link
+                className="button button--secondary button--large med-button"
+                to="/products"
+              >
                 {t("premiumHome.exploreDevices")}
-                <MdArrowForward className="flow-arrow" size={18} />
+                <MdArrowForward className="flow-arrow" size={18} aria-hidden="true" />
               </Link>
-              <Link className="button button--secondary button--large med-button med-button--glass" to="/cart">
+              <Link
+                className="button button--secondary button--large med-button med-button--glass"
+                to="/cart"
+              >
                 {t("premiumHome.procurementCart")}
-                <MdShoppingCart size={18} />
+                <MdShoppingCart size={18} aria-hidden="true" />
               </Link>
             </div>
           </div>
 
-          <div className="dashboard-float dashboard-float--left" data-depth="1.2">
+          <div
+            className="dashboard-float dashboard-float--left"
+            aria-hidden="true"
+            data-depth="1.2"
+          >
             <span>{t("premiumHome.pulseTelemetry")}</span>
             <strong>{t("premiumHome.pulseValue")}</strong>
             <div className="ecg-line" />
           </div>
 
-          <div className="dashboard-float dashboard-float--right" data-depth="1.8">
+          <div
+            className="dashboard-float dashboard-float--right"
+            aria-hidden="true"
+            data-depth="1.8"
+          >
             <span>{t("premiumHome.deviceReadiness")}</span>
             <strong>{t("premiumHome.deviceReadinessValue")}</strong>
-            <div className="radial-meter">
-              <i />
-            </div>
+            <div className="radial-meter"><i /></div>
           </div>
         </div>
       </section>
 
-      <section className="med-metrics reveal-up">
+      {/* ── Metrics ─────────────────────────────────────────── */}
+      <section className="med-metrics reveal-up" aria-label="Key metrics">
         <div className="container med-metrics__grid">
-          {metrics.map((item) => (
+          {Array.isArray(metrics) && metrics.map((item) => (
             <article key={item.label}>
               <strong>{item.value}</strong>
               <span>{item.label}</span>
@@ -557,58 +557,62 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="med-story">
+      {/* ── Story / Scroll ────────────────────────────────────── */}
+      <section className="med-story" aria-label="Product showcase">
         <div className="container med-story__grid">
-          <div className="story-sticky reveal-up">
-            
-          </div>
+          <div className="story-sticky reveal-up" aria-hidden="true" />
           <div className="chapter-stack">
-            {productChapters.map((chapter) => (
-              <article className="chapter-card" key={chapter.title}>
-                <span>{chapter.label}</span>
-                <h3>{chapter.title}</h3>
-                <p>{chapter.body}</p>
-                <strong>{chapter.metric}</strong>
+            {Array.isArray(productChapters) && productChapters.map((ch) => (
+              <article className="chapter-card" key={ch.title}>
+                <span>{ch.label}</span>
+                <h3>{ch.title}</h3>
+                <strong>{ch.metric}</strong>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      
-
-      <section className="container med-products reveal-up">
+      {/* ── Featured Products ─────────────────────────────────── */}
+      <section className="container med-products reveal-up" aria-label={t("premiumHome.featuredTitle")}>
         <div className="section-heading section-heading--inline med-heading">
-         
-          <Link className="button button--secondary med-button med-button--glass" to="/products">
+          <div>
+            <span className="eyebrow eyebrow--solid">{t("premiumHome.featuredCatalog")}</span>
+          </div>
+          <Link
+            className="button button--secondary med-button med-button--glass"
+            to="/products"
+          >
             {t("premiumHome.viewAllProducts")}
-            <MdArrowForward className="flow-arrow" size={18} />
+            <MdArrowForward className="flow-arrow" size={18} aria-hidden="true" />
           </Link>
         </div>
 
-        {featuredProducts.length > 0 ? (
+        {loadingProducts ? (
           <div className="product-grid product-grid--featured">
-            {featuredProducts.map((product) => (
-              <MedicalProductCard key={product._id} product={product} />
+            {[1, 2, 3].map((i) => <SkeletonProductCard key={i} />)}
+          </div>
+        ) : featuredProducts.length > 0 ? (
+          <div className="product-grid product-grid--featured">
+            {featuredProducts.map((p) => (
+              <MedicalProductCard key={p._id} product={p} />
             ))}
           </div>
         ) : (
           <div className="showcase-grid">
-            {productsToShow.map((product) => (
-              <Link className="showcase-card" key={product.name} to="/products">
-                <img alt={product.name} src={product.image} />
+            {imageProducts.map((p) => (
+              <Link className="showcase-card" key={p.name} to="/products">
+                <img alt={p.name} src={p.image} loading="lazy" />
                 <div>
                   <span>{t("premiumHome.readyToShip")}</span>
-                  <strong>{product.name}</strong>
-                  <small>{product.price}</small>
+                  <strong>{p.name}</strong>
+                  <small>{p.price}</small>
                 </div>
               </Link>
             ))}
           </div>
         )}
       </section>
-
-    
     </div>
   );
 }

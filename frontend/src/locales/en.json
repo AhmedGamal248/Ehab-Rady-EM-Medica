@@ -46,7 +46,8 @@
     "arabicLabel": "AR",
     "login": "Login",
     "register": "Create Account",
-    "logout": "Logout"
+    "logout": "Logout",
+    "loggedInAs": "Logged in as"
   },
   "footer": {
     "brandDescription": "A professional medical storefront for supplies and equipment with a clear, secure shopping experience for clinics, centers, and patients.",
@@ -79,10 +80,22 @@
       "Nursing"
     ],
     "metrics": [
-      { "value": "100+", "label": "Medical products" },
-      { "value": "10K+", "label": "Happy customers" },
-      { "value": "24/7", "label": "Support channels" },
-      { "value": "99%", "label": "Completed orders" }
+      {
+        "value": "100+",
+        "label": "Medical products"
+      },
+      {
+        "value": "10K+",
+        "label": "Happy customers"
+      },
+      {
+        "value": "24/7",
+        "label": "Support channels"
+      },
+      {
+        "value": "99%",
+        "label": "Completed orders"
+      }
     ],
     "whyEyebrow": "Why this refresh",
     "whyTitle": "A clearer interface built for medical commerce",
@@ -112,16 +125,28 @@
     "heroKicker": "Clinical commerce OS",
     "heroDescription": "A premium medical ecommerce platform where verified devices, live clinical data, and immersive 3D product inspection move with cinematic precision.",
     "exploreDevices": "Explore devices",
-    "procurementCart": "Procurement cart",
+    "procurementCart": "Cart",
     "pulseTelemetry": "Pulse telemetry",
     "pulseValue": "72 BPM",
     "deviceReadiness": "Device readiness",
     "deviceReadinessValue": "98.7%",
     "metrics": [
-      { "value": "2,400+", "label": "verified medical SKUs" },
-      { "value": "48h", "label": "clinical dispatch" },
-      { "value": "ISO", "label": "sourced compliance" },
-      { "value": "24/7", "label": "support telemetry" }
+      {
+        "value": "2,400+",
+        "label": "verified medical SKUs"
+      },
+      {
+        "value": "48h",
+        "label": "clinical dispatch"
+      },
+      {
+        "value": "ISO",
+        "label": "sourced compliance"
+      },
+      {
+        "value": "24/7",
+        "label": "support telemetry"
+      }
     ],
     "storyKicker": "Scroll-controlled showcase",
     "storyTitle": "Medical devices rendered with real-time WebGL depth.",
@@ -156,7 +181,12 @@
     "systemTitle": "Procurement panels that feel like an advanced medical operating system.",
     "supplySignal": "Supply signal",
     "liveOrderIntelligence": "Live order intelligence",
-    "signals": ["ECG stable", "Sterile chain", "Cold-safe", "Stock live"],
+    "signals": [
+      "ECG stable",
+      "Sterile chain",
+      "Cold-safe",
+      "Stock live"
+    ],
     "verifiedSourcing": "Verified sourcing",
     "verifiedSourcingDescription": "Compliance badges, clean history, and support metadata appear around each device.",
     "holographicCatalog": "Holographic catalog",

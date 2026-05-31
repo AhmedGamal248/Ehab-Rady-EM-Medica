@@ -1,8 +1,8 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { MdAddShoppingCart, MdVerifiedUser } from "react-icons/md";
+import { MdAddShoppingCart } from "react-icons/md";
 import { useCart } from "../context/CartContext";
 import {
   formatCurrency,
@@ -16,19 +16,27 @@ function MedicalProductCard({ product }) {
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
-  const handleOpenProduct = () => {
-    navigate(`/products/${product._id}`);
-  };
+  const isOutOfStock = product.stock <= 0;
 
-  const handleAddToCart = (event) => {
-    event.stopPropagation();
+  const handleOpenProduct = useCallback(() => {
+    navigate(`/products/${product._id}`);
+  }, [navigate, product._id]);
+
+  const handleAddToCart = useCallback((e) => {
+    e.stopPropagation();
+    if (isOutOfStock) return;
     addToCart(product);
     toast.success(t("productCard.addedSuccess"));
-  };
+  }, [addToCart, isOutOfStock, product, t]);
 
   return (
-    <article className="product-card">
-      <button className="product-card__open" onClick={handleOpenProduct} type="button">
+    <article className="product-card" aria-label={product.name}>
+      <button
+        className="product-card__open"
+        onClick={handleOpenProduct}
+        type="button"
+        aria-label={`${t("common.products")} — ${product.name}`}
+      >
         <span className="product-card__media">
           <img
             alt={product.name}
@@ -38,15 +46,23 @@ function MedicalProductCard({ product }) {
             onError={handleProductImageError}
             src={getProductImage(product)}
             width={400}
-            height={364}
+            height={300}
           />
 
-          {product.stock <= 0 ? (
-            <span className="product-card__stock product-card__stock--empty">
+          {isOutOfStock ? (
+            <span
+              className="product-card__stock product-card__stock--empty"
+              aria-label={t("productCard.outOfStock")}
+            >
               {t("productCard.outOfStock")}
             </span>
           ) : (
-            <span className="product-card__stock">{t("productCard.available")}</span>
+            <span
+              className="product-card__stock"
+              aria-label={t("productCard.available")}
+            >
+              {t("productCard.available")}
+            </span>
           )}
         </span>
 
@@ -58,16 +74,25 @@ function MedicalProductCard({ product }) {
       </button>
 
       <div className="product-card__footer">
-        <strong>{formatCurrency(product.price)}</strong>
+        <strong aria-label={`${t("common.price")}: ${formatCurrency(product.price)}`}>
+          {formatCurrency(product.price)}
+        </strong>
         <button
           className="button button--primary"
-          disabled={product.stock <= 0}
+          disabled={isOutOfStock}
           onClick={handleAddToCart}
           type="button"
+          aria-label={
+            isOutOfStock
+              ? t("productCard.unavailable")
+              : `${t("productCard.addToCart")} — ${product.name}`
+          }
         >
-          <MdAddShoppingCart size={18} />
+          <MdAddShoppingCart size={16} aria-hidden="true" />
           <span>
-            {product.stock <= 0 ? t("productCard.unavailable") : t("productCard.addToCart")}
+            {isOutOfStock
+              ? t("productCard.unavailable")
+              : t("productCard.addToCart")}
           </span>
         </button>
       </div>

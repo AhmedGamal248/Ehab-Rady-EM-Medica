@@ -6,32 +6,45 @@ import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { t }     = useTranslation();
+  const navigate  = useNavigate();
   const { login } = useAuth();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm]       = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [fieldError, setFieldError] = useState("");
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleChange = (field) => (e) => {
+    setFieldError("");
+    setForm((v) => ({ ...v, [field]: e.target.value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.email || !form.password) {
+      setFieldError(t("loginPage.error"));
+      return;
+    }
 
     try {
       setLoading(true);
-      const response = await api.post("/users/login", form);
-      const { token, user } = response.data?.data || response.data;
+      setFieldError("");
+      const res = await api.post("/users/login", form);
+      const { token, user } = res.data?.data || res.data;
 
       login(user, token);
       toast.success(t("loginPage.success"));
 
-      const redirectTo = localStorage.getItem("redirectAfterLogin");
-      if (redirectTo) {
+      const redirect = localStorage.getItem("redirectAfterLogin");
+      if (redirect) {
         localStorage.removeItem("redirectAfterLogin");
-        navigate(redirectTo);
+        navigate(redirect);
       } else {
         navigate("/");
       }
-    } catch {
-      toast.error(t("loginPage.error"));
+    } catch (err) {
+      const msg = err.response?.data?.message || t("loginPage.error");
+      setFieldError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -40,60 +53,72 @@ export default function LoginPage() {
   return (
     <div className="page auth-page">
       <div className="container auth-page__container">
-
-        <section className="auth-card">
+        <section className="auth-card" aria-label="Login form">
           <div className="section-heading section-heading--compact">
-            <span className="eyebrow">{t("loginPage.sectionEyebrow")}</span>
-            <h2>{t("loginPage.sectionTitle")}</h2>
+            <span style={{fontSize: "2.78rem"}} className="eyebrow">{t("loginPage.sectionEyebrow")}</span>
           </div>
 
-          <form className="auth-form" onSubmit={handleSubmit}>
-            <label>
+          <form className="auth-form" onSubmit={handleSubmit} noValidate>
+            <label htmlFor="login-email">
               {t("loginPage.emailLabel")}
               <input
+                id="login-email"
                 autoComplete="email"
-                onChange={(event) =>
-                  setForm((currentValue) => ({
-                    ...currentValue,
-                    email: event.target.value,
-                  }))
-                }
+                inputMode="email"
+                onChange={handleChange("email")}
                 placeholder={t("loginPage.emailPlaceholder")}
                 required
                 type="email"
                 value={form.email}
+                aria-required="true"
               />
             </label>
 
-            <label>
+            <label htmlFor="login-password">
               {t("loginPage.passwordLabel")}
               <input
+                id="login-password"
                 autoComplete="current-password"
                 minLength={8}
-                onChange={(event) =>
-                  setForm((currentValue) => ({
-                    ...currentValue,
-                    password: event.target.value,
-                  }))
-                }
+                onChange={handleChange("password")}
                 placeholder={t("loginPage.passwordPlaceholder")}
                 required
                 type="password"
                 value={form.password}
+                aria-required="true"
               />
             </label>
+
+            {fieldError && (
+              <p
+                role="alert"
+                style={{
+                  color: "var(--danger)",
+                  fontSize: "0.88rem",
+                  padding: "10px 14px",
+                  background: "rgba(212,37,37,0.08)",
+                  borderRadius: "var(--r-sm)",
+                  border: "1px solid rgba(212,37,37,0.2)",
+                }}
+              >
+                {fieldError}
+              </p>
+            )}
 
             <button
               className="button button--primary button--large"
               disabled={loading}
               type="submit"
+              style={{ width: "100%" }}
+              aria-busy={loading}
             >
               {loading ? t("loginPage.loadingButton") : t("loginPage.submitButton")}
             </button>
           </form>
 
           <p className="auth-card__footer">
-            {t("loginPage.footerText")} <Link to="/register">{t("loginPage.footerLink")}</Link>
+            {t("loginPage.footerText")}{" "}
+            <Link to="/register">{t("loginPage.footerLink")}</Link>
           </p>
         </section>
       </div>

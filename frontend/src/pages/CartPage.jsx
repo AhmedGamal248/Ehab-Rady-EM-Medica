@@ -48,14 +48,7 @@ export default function CartPage() {
 
   return (
     <div className="page">
-      <section className="page-hero page-hero--compact">
-        <div className="container page-hero__content">
-          <span className="eyebrow eyebrow--solid">{t("cartPage.heroEyebrow")}</span>
-          <h1>{t("cartPage.heroTitle")}</h1>
-          {/* <p>{t("cartPage.heroDescription")}</p> */}
-        </div>
-      </section>
-
+    
       <section className="container section cart-layout">
         <div className="cart-items">
           {cart.map((item) => (

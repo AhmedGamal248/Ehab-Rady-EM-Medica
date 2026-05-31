@@ -2,31 +2,58 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/web-logo.png" />
+    <link rel="icon" href="/web-logo.png" type="image/png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="EM Medica - Trusted medical supplies and equipment store"
-    />
+    <meta name="description" content="EM Medica — trusted medical supplies and equipment. Browse professional-grade devices, monitoring tools, and nursing supplies with fast delivery." />
+    <meta name="theme-color" content="#0d6e8c" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#07141f" media="(prefers-color-scheme: dark)" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:title"       content="EM Medica — Medical Supplies Store" />
+    <meta property="og:description" content="Professional medical equipment and supplies. Clear pricing, fast delivery, specialized support." />
+    <meta property="og:image"       content="/web-logo.png" />
+
     <title>EM Medica</title>
-    <!-- Preconnect to Google Fonts (eliminates DNS + TLS latency) -->
+
+    <!-- Preconnect — eliminates DNS + TLS handshake latency for fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Load fonts non-render-blocking (moved from CSS @import) -->
+
+    <!--
+      Font strategy:
+      - display=swap: render with fallback font immediately, swap when ready
+      - Only the weights we actually use (600, 700, 800 for Manrope; 400, 600, 700, 800 for Cairo)
+    -->
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Manrope:wght@600;700;800&display=swap"
     />
-    <!-- Inline critical CSS: instant background + loading state -->
+
+    <!--
+      Critical inline CSS:
+      Prevents flash of unstyled content (FOUC) before React hydrates.
+      Mirrors the CSS custom properties for the loader spinner.
+    -->
     <style>
+      :root { --loader-primary: #0d6e8c; --loader-bg: #f2f7fa; }
+      @media (prefers-color-scheme: dark) {
+        :root { --loader-primary: #5ecff0; --loader-bg: #07141f; }
+      }
+      *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { -webkit-text-size-adjust: 100%; }
       body {
-        background: #f4f8fb;
-        margin: 0;
-        font-family: "Manrope", "Segoe UI", sans-serif;
+        background: var(--loader-bg);
+        color: #142c3e;
+        font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
       }
       @media (prefers-color-scheme: dark) {
-        body { background: #081521; color: #eef8ff; }
+        body { color: #e8f5ff; }
       }
+      /* Loading spinner — visible until React mounts */
       .app-loader {
         align-items: center;
         display: flex;
@@ -34,23 +61,33 @@
         justify-content: center;
       }
       .app-loader__spinner {
-        animation: app-spin 0.85s linear infinite;
-        border: 4px solid rgba(15,110,140,0.15);
+        animation: spin 0.75s linear infinite;
+        border: 3px solid rgba(13,110,140,0.15);
         border-radius: 50%;
-        border-top-color: #0f6e8c;
-        height: 42px;
-        width: 42px;
+        border-top-color: var(--loader-primary);
+        height: 40px;
+        width: 40px;
       }
-      @keyframes app-spin { to { transform: rotate(360deg); } }
+      @media (prefers-color-scheme: dark) {
+        .app-loader__spinner { border-color: rgba(94,207,240,0.15); border-top-color: var(--loader-primary); }
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) {
+        .app-loader__spinner { animation: none; border-style: dashed; }
+      }
     </style>
   </head>
+
   <body>
+    <!-- Skip-to-content handled by React (in App.jsx) -->
     <div id="root">
-      <!-- Instant loading state (replaced by React on mount) -->
-      <div class="app-loader">
+      <!-- Server-side placeholder — replaced by React on mount -->
+      <div class="app-loader" aria-label="Loading EM Medica" role="status">
         <div class="app-loader__spinner"></div>
       </div>
     </div>
+
+    <!-- Main entry point -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

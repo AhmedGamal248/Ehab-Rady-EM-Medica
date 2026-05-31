@@ -9,118 +9,102 @@ import { useTranslation } from "react-i18next";
 import { MdFilterList, MdInventory2, MdSearch, MdSort } from "react-icons/md";
 import api from "../services/api";
 import MedicalProductCard from "../components/MedicalProductCard";
+import SkeletonProductCard from "../components/SkeletonProductCard";
 
-function getProductsPayload(response) {
-  return response.data?.data?.data || response.data?.data || response.data || [];
+function getProductsPayload(res) {
+  return res.data?.data?.data || res.data?.data || res.data || [];
 }
 
 export default function ProductsPage() {
   const { t } = useTranslation();
   const [products, setProducts] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch]     = useState("");
   const [category, setCategory] = useState("");
-  const [sort, setSort] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [sort, setSort]         = useState("");
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState("");
+
   const deferredSearch = useDeferredValue(search);
+  const isStale = search !== deferredSearch;
 
   useEffect(() => {
     let ignore = false;
+    setLoading(true);
+    setError("");
 
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        const response = await api.get("/products");
-        const nextProducts = getProductsPayload(response);
+    api.get("/products")
+      .then((res) => {
+        if (ignore) return;
+        startTransition(() => setProducts(getProductsPayload(res)));
+      })
+      .catch(() => {
+        if (!ignore) setError(t("productsPage.loadError"));
+      })
+      .finally(() => {
+        if (!ignore) setLoading(false);
+      });
 
-        if (!ignore) {
-          startTransition(() => {
-            setProducts(nextProducts);
-          });
-        }
-      } catch {
-        if (!ignore) {
-          setError(t("productsPage.loadError"));
-        }
-      } finally {
-        if (!ignore) {
-          setLoading(false);
-        }
-      }
-    };
-
-    void fetchProducts();
-
-    return () => {
-      ignore = true;
-    };
+    return () => { ignore = true; };
   }, [t]);
 
   const categories = useMemo(
-    () =>
-      [...new Set(products.map((product) => product.category).filter(Boolean))].sort(),
-    [products]
+    () => [...new Set(products.map((p) => p.category).filter(Boolean))].sort(),
+    [products],
   );
 
   const filteredProducts = useMemo(() => {
-    const normalizedSearch = deferredSearch.trim().toLowerCase();
-
-    let result = products.filter((product) => {
-      const matchesCategory = category ? product.category === category : true;
-      const matchesSearch = normalizedSearch
-        ? `${product.name} ${product.description}`.toLowerCase().includes(normalizedSearch)
+    const q = deferredSearch.trim().toLowerCase();
+    let result = products.filter((p) => {
+      const matchCat  = category ? p.category === category : true;
+      const matchText = q
+        ? `${p.name} ${p.description}`.toLowerCase().includes(q)
         : true;
-
-      return matchesCategory && matchesSearch;
+      return matchCat && matchText;
     });
-
-    if (sort === "price-asc") result = [...result].sort((a, b) => a.price - b.price);
+    if (sort === "price-asc")  result = [...result].sort((a, b) => a.price - b.price);
     if (sort === "price-desc") result = [...result].sort((a, b) => b.price - a.price);
-
     return result;
   }, [category, deferredSearch, products, sort]);
 
   return (
     <div className="page">
-      <section className="page-hero">
-        <div className="container page-hero__content">
-          <span className="eyebrow eyebrow--solid">{t("productsPage.heroEyebrow")}</span>
-          <h1>{t("productsPage.heroTitle")}</h1>
-          {/* <p>{t("productsPage.heroDescription")}</p> */}
-        </div>
-      </section>
+     
 
       <section className="container section">
-        <div className="filter-panel">
+        {/* ── Filters ── */}
+        <div className="filter-panel" role="search" aria-label="Filter products">
           <label className="input-shell">
-            <MdSearch size={20} />
+            <MdSearch size={20} aria-hidden="true" />
             <input
-              onChange={(event) => setSearch(event.target.value)}
+              aria-label={t("productsPage.searchPlaceholder")}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder={t("productsPage.searchPlaceholder")}
               type="search"
               value={search}
             />
           </label>
 
-          <label className="input-shell input-shell--select">
-            <MdFilterList size={20} />
+          <label className="input-shell">
+            <MdFilterList size={20} aria-hidden="true" />
             <select
-              onChange={(event) => setCategory(event.target.value)}
+              aria-label={t("productsPage.allCategories")}
+              onChange={(e) => setCategory(e.target.value)}
               value={category}
             >
               <option value="">{t("productsPage.allCategories")}</option>
-              {categories.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
           </label>
 
-          <label className="input-shell input-shell--select">
-            <MdSort size={20} />
-            <select onChange={(event) => setSort(event.target.value)} value={sort}>
+          <label className="input-shell">
+            <MdSort size={20} aria-hidden="true" />
+            <select
+              aria-label={t("productsPage.sortDefault")}
+              onChange={(e) => setSort(e.target.value)}
+              value={sort}
+            >
               <option value="">{t("productsPage.sortDefault")}</option>
               <option value="price-asc">{t("productsPage.sortPriceAsc")}</option>
               <option value="price-desc">{t("productsPage.sortPriceDesc")}</option>
@@ -128,31 +112,40 @@ export default function ProductsPage() {
           </label>
         </div>
 
+        {/* ── Results header ── */}
         <div className="section-heading section-heading--inline">
           <div>
             <span className="eyebrow">{t("productsPage.resultsEyebrow")}</span>
-            <h3>{t("productsPage.availableCount", { count: filteredProducts.length })}</h3>
+            <h3 aria-live="polite" aria-atomic="true">
+              {!loading && t("productsPage.availableCount", { count: filteredProducts.length })}
+            </h3>
           </div>
         </div>
 
+        {/* ── Grid ── */}
         {loading ? (
-          <div className="state-card">
-            <div className="spinner" />
-            <p>{t("productsPage.loading")}</p>
+          <div className="product-grid" aria-label="Loading products" aria-busy="true">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <SkeletonProductCard key={i} />
+            ))}
           </div>
         ) : error ? (
-          <div className="state-card state-card--error">
+          <div className="state-card state-card--error" role="alert">
             <p>{error}</p>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="state-card">
-            <MdInventory2 size={38} />
+          <div className="state-card" role="status">
+            <MdInventory2 size={38} aria-hidden="true" />
             <p>{t("productsPage.empty")}</p>
           </div>
         ) : (
-          <div className="product-grid">
-            {filteredProducts.map((product) => (
-              <MedicalProductCard key={product._id} product={product} />
+          <div
+            className="product-grid"
+            style={{ opacity: isStale ? 0.6 : 1, transition: "opacity 0.2s ease" }}
+            aria-label="Products"
+          >
+            {filteredProducts.map((p) => (
+              <MedicalProductCard key={p._id} product={p} />
             ))}
           </div>
         )}
