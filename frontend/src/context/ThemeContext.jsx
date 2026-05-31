@@ -20,12 +20,20 @@ const getPreferredTheme = () => {
     : "light";
 };
 
+const applyTheme = (theme) => {
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+};
+
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(getPreferredTheme);
+  const [theme, setTheme] = useState(() => {
+    const preferredTheme = getPreferredTheme();
+    applyTheme(preferredTheme);
+    return preferredTheme;
+  });
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.style.colorScheme = theme;
+    applyTheme(theme);
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 

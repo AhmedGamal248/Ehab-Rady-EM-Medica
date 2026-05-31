@@ -628,7 +628,29 @@ html[lang="ar"] .eyebrow, html[lang="ar"] .eyebrow--solid {
   flex: 1;
   min-height: 100%;
   width: 100%;
-  background: rgb(9 19 28 / 86%);
+  background: transparent;
+}
+.input-shell select {
+  -webkit-appearance: none;
+  appearance: none;
+  color: var(--text-primary);
+  color-scheme: light;
+  cursor: pointer;
+  padding-inline-end: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234d6878' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0 center;
+}
+html[dir="rtl"] .input-shell select {
+  background-position: left 0 center;
+}
+.input-shell select option {
+  background-color: var(--surface-solid);
+  color: var(--text-primary);
+}
+:root[data-theme="dark"] .input-shell select {
+  color-scheme: dark;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a8c4d4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 .input-shell input:focus,
 .input-shell select:focus { outline: none; box-shadow: none; }
@@ -1391,11 +1413,14 @@ html[lang="ar"] .med-kicker { letter-spacing: 0; text-transform: none; }
 html[dir="rtl"] .flow-arrow { transform: rotate(180deg); }
 
 .med-hero h1 {
-  color: rgba(238,248,255,0.85);
+  color: #102f46;
   font-size: clamp(3.8rem,6vw,10rem);
   letter-spacing: -0.04em;
   line-height: 0.94;
   margin: 22px 0 20px;
+}
+:root[data-theme="dark"] .med-hero h1 {
+  color: rgba(238,248,255,0.85);
 }
 .med-hero p,
 .story-sticky p,
@@ -1819,7 +1844,7 @@ html[dir="rtl"] .signal-rail span { animation-name: pulseSignalRtl; }
   .med-hero { min-height: auto; padding: 50px 0 60px; }
   .medical-webgl { opacity: 0.38; }
   .med-hero__inner { min-height: auto; }
-  .med-hero h1 { color: rgba(238,248,255,0.88); font-size: clamp(3.2rem,18vw,5rem); line-height: 0.93; }
+  .med-hero h1 { font-size: clamp(3.2rem,18vw,5rem); line-height: 0.93; }
   .med-hero p,.story-sticky p,.chapter-card p,.system-panel p { font-size: 0.95rem; line-height: 1.72; }
   .med-hero__actions,.med-products .section-heading--inline { align-items: stretch; flex-direction: column; }
   .med-hero__actions .button,.med-products .button { width: 100%; }
@@ -2086,11 +2111,7 @@ html[dir="rtl"] .flow-arrow {
   opacity: 0.88;
 }
 
-/* ── Input shell select — remove double arrow ────────────────── */
-.input-shell select {
-  -webkit-appearance: none;
-  appearance: none;
-}
+/* ── Input shell select — themed above in filter panel section ── */
 
 /* ── Ensure dark mode doesn't lose gradient on med-page ─────── */
 :root[data-theme="dark"] .med-page {

@@ -35,11 +35,18 @@
       Prevents flash of unstyled content (FOUC) before React hydrates.
       Mirrors the CSS custom properties for the loader spinner.
     -->
+    <script>
+      (function () {
+        var theme = localStorage.getItem("theme");
+        if (theme === "light" || theme === "dark") {
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        }
+      })();
+    </script>
     <style>
       :root { --loader-primary: #0d6e8c; --loader-bg: #f2f7fa; }
-      @media (prefers-color-scheme: dark) {
-        :root { --loader-primary: #5ecff0; --loader-bg: #07141f; }
-      }
+      :root[data-theme="dark"] { --loader-primary: #5ecff0; --loader-bg: #07141f; }
       *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
       html { -webkit-text-size-adjust: 100%; }
       body {
@@ -50,9 +57,7 @@
         overflow-x: hidden;
         -webkit-font-smoothing: antialiased;
       }
-      @media (prefers-color-scheme: dark) {
-        body { color: #e8f5ff; }
-      }
+      :root[data-theme="dark"] body { color: #e8f5ff; }
       /* Loading spinner — visible until React mounts */
       .app-loader {
         align-items: center;
@@ -68,8 +73,9 @@
         height: 40px;
         width: 40px;
       }
-      @media (prefers-color-scheme: dark) {
-        .app-loader__spinner { border-color: rgba(94,207,240,0.15); border-top-color: var(--loader-primary); }
+      :root[data-theme="dark"] .app-loader__spinner {
+        border-color: rgba(94,207,240,0.15);
+        border-top-color: var(--loader-primary);
       }
       @keyframes spin { to { transform: rotate(360deg); } }
       @media (prefers-reduced-motion: reduce) {
