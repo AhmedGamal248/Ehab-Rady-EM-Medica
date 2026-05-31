@@ -108,6 +108,67 @@
     "featuredTitle": "Top picks for you",
     "featuredBrowseAll": "Browse all products"
   },
+  "premiumHome": {
+    "heroKicker": "Clinical commerce OS",
+    "heroDescription": "A premium medical ecommerce platform where verified devices, live clinical data, and immersive 3D product inspection move with cinematic precision.",
+    "exploreDevices": "Explore devices",
+    "procurementCart": "Procurement cart",
+    "pulseTelemetry": "Pulse telemetry",
+    "pulseValue": "72 BPM",
+    "deviceReadiness": "Device readiness",
+    "deviceReadinessValue": "98.7%",
+    "metrics": [
+      { "value": "2,400+", "label": "verified medical SKUs" },
+      { "value": "48h", "label": "clinical dispatch" },
+      { "value": "ISO", "label": "sourced compliance" },
+      { "value": "24/7", "label": "support telemetry" }
+    ],
+    "storyKicker": "Scroll-controlled showcase",
+    "storyTitle": "Medical devices rendered with real-time WebGL depth.",
+    "storyDescription": "Cinematic camera movement, layered telemetry, and dynamic lighting turn product evaluation into a calm, high-trust buying experience.",
+    "productChapters": [
+      {
+        "label": "Cardiology",
+        "title": "Riester cardiophone stethoscope",
+        "body": "Acoustic precision, soft-touch stainless hardware, and a cinematic inspection mode for premium clinical purchasing.",
+        "metric": "24-bit acoustic clarity"
+      },
+      {
+        "label": "Vitals",
+        "title": "Smart blood pressure monitor",
+        "body": "Dynamic lighting tracks cuff calibration, pressure state, and delivery readiness as the product rotates through the story.",
+        "metric": "99.3% calibration score"
+      },
+      {
+        "label": "Diagnostics",
+        "title": "Digital thermometer suite",
+        "body": "Minimal silver housing, cyan telemetry, and hover physics make small devices feel precise, trustworthy, and tangible.",
+        "metric": "0.8s response window"
+      },
+      {
+        "label": "Clinical Tools",
+        "title": "Portable diagnostic ecosystem",
+        "body": "A floating medical OS surrounds each device with procurement data, live stock, service notes, and verified compliance.",
+        "metric": "48h dispatch ready"
+      }
+    ],
+    "systemKicker": "Floating healthcare interface",
+    "systemTitle": "Procurement panels that feel like an advanced medical operating system.",
+    "supplySignal": "Supply signal",
+    "liveOrderIntelligence": "Live order intelligence",
+    "signals": ["ECG stable", "Sterile chain", "Cold-safe", "Stock live"],
+    "verifiedSourcing": "Verified sourcing",
+    "verifiedSourcingDescription": "Compliance badges, clean history, and support metadata appear around each device.",
+    "holographicCatalog": "Holographic catalog",
+    "holographicCatalogDescription": "Hover and scroll motion keeps premium equipment tangible without visual noise.",
+    "featuredCatalog": "Featured catalog",
+    "featuredTitle": "Clinical essentials with premium inspection states.",
+    "viewAllProducts": "View all products",
+    "readyToShip": "Ready to ship",
+    "ctaKicker": "Luxury medical ecommerce",
+    "ctaTitle": "Build a smarter clinic supply workflow with calm, cinematic confidence.",
+    "startProcurement": "Start procurement"
+  },
   "productsPage": {
     "heroEyebrow": "Medical catalog",
     "heroTitle": "Browse medical products with ease and start from the right category",

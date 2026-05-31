@@ -60,7 +60,6 @@ export default function SiteHeader() {
           </span>
           <span>
             <strong className="brand__name">EM Medica</strong>
-            <span className="brand__tagline">{t("header.brandTagline")}</span>
           </span>
         </Link>
 

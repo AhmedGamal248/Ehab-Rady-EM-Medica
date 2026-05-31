@@ -78,6 +78,10 @@ html[lang="ar"] body {
   font-family: "Cairo", "Segoe UI", sans-serif;
 }
 
+html[dir="rtl"] {
+  text-align: right;
+}
+
 img {
   display: block;
   max-width: 100%;
@@ -331,7 +335,8 @@ a:focus-visible {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 .site-link,
@@ -345,19 +350,16 @@ a:focus-visible {
   display: inline-flex;
   gap: 8px;
   min-height: 44px;
-  padding: 0 16px;
+  padding: 0 14px;
+  white-space: nowrap;
 }
 
 .site-link.active {
-  background: var(--primary-soft);
-  border-color: var(--border-strong);
+
   color: var(--primary);
 }
 
-.site-link--cart {
-  background: var(--surface);
-  border-color: var(--border);
-}
+
 
 .site-link--primary {
   background: var(--primary);
@@ -369,9 +371,7 @@ a:focus-visible {
   color: var(--danger);
 }
 
-.theme-toggle {
-  border-color: var(--border);
-}
+
 
 .site-user {
   background: var(--surface);
@@ -648,7 +648,6 @@ a:focus-visible {
 }
 
 .product-card {
-  cursor: pointer;
   display: grid;
   gap: 10px;
   overflow: hidden;
@@ -659,14 +658,27 @@ a:focus-visible {
     border-color 0.18s ease;
 }
 
-.product-card:hover {
+.product-card:hover,
+.product-card:focus-within {
   border-color: var(--border-strong);
   box-shadow: var(--shadow-soft);
   transform: translateY(-4px);
 }
 
+.product-card__open {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  text-align: start;
+  width: 100%;
+}
+
 .product-card__media {
   border-radius: 22px;
+  display: block;
   overflow: hidden;
   position: relative;
 }
@@ -1842,4 +1854,625 @@ html[dir="rtl"] .floating-cart__count {
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* Premium medical 3D storefront */
+.med-page {
+  background:
+    linear-gradient(180deg, rgba(248, 252, 255, 0.94) 0%, rgba(231, 244, 251, 0.78) 44%, #f8fcff 100%);
+  isolation: isolate;
+  overflow: hidden;
+  padding-bottom: 0;
+  position: relative;
+}
+
+.medical-webgl {
+  height: 100vh;
+  inset: 0;
+  opacity: 0.95;
+  pointer-events: none;
+  position: fixed;
+  width: 100vw;
+  z-index: 0;
+}
+
+.med-page > section {
+  position: relative;
+  z-index: 1;
+}
+
+.med-hero {
+  min-height: calc(100vh - 82px);
+  padding: 7vh 0 10vh;
+  position: relative;
+}
+
+.med-hero::before,
+.med-story::before,
+.med-cta::before {
+  background:
+    linear-gradient(90deg, rgba(74, 211, 242, 0.1) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(74, 211, 242, 0.09) 1px, transparent 1px);
+  background-size: 72px 72px;
+  content: "";
+  inset: 0;
+  mask-image: linear-gradient(180deg, transparent 0%, #000 24%, transparent 100%);
+  opacity: 0.48;
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+}
+
+.med-hero__inner {
+  align-items: center;
+  display: grid;
+  min-height: calc(100vh - 200px);
+  position: relative;
+}
+
+.med-hero__copy {
+  max-width: 760px;
+  position: relative;
+  z-index: 2;
+}
+
+.med-kicker {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(105, 202, 231, 0.34);
+  border-radius: 999px;
+  box-shadow: 0 16px 42px rgba(38, 116, 145, 0.08);
+  color: #0f6e8c;
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 800;
+  gap: 8px;
+  letter-spacing: 0;
+  padding: 9px 13px;
+  text-transform: uppercase;
+}
+
+html[dir="rtl"] .med-kicker,
+html[dir="rtl"] .dashboard-float span,
+html[dir="rtl"] .system-panel span,
+html[dir="rtl"] .chapter-card span,
+html[dir="rtl"] .showcase-card span {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+html[dir="rtl"] .flow-arrow {
+  transform: rotate(180deg);
+}
+
+.med-hero h1 {
+  color: #eef8ffa3;
+  font-size: clamp(4rem, 8vw, 10.5rem);
+  letter-spacing: 0;
+  margin: 24px 0 22px;
+}
+
+.med-hero p,
+.story-sticky p,
+.chapter-card p,
+.system-panel p {
+  color: #537087;
+  font-size: 1.05rem;
+  line-height: 1.85;
+  max-width: 650px;
+}
+
+html[dir="rtl"] .med-hero p,
+html[dir="rtl"] .story-sticky p,
+html[dir="rtl"] .chapter-card p,
+html[dir="rtl"] .system-panel p {
+  line-height: 2;
+}
+
+.med-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.med-button {
+  box-shadow: 0 18px 42px rgba(14, 119, 150, 0.14);
+}
+
+.med-button--glass {
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.62);
+  border-color: rgba(93, 188, 218, 0.28);
+}
+
+.dashboard-float {
+  backdrop-filter: blur(22px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(230, 247, 255, 0.46));
+  border: 1px solid rgba(110, 212, 242, 0.32);
+  border-radius: 8px;
+  box-shadow: 0 26px 70px rgba(34, 105, 135, 0.14);
+  display: grid;
+  gap: 10px;
+  min-width: 218px;
+  padding: 18px;
+  position: absolute;
+  z-index: 3;
+}
+
+.dashboard-float span,
+.system-panel span,
+.chapter-card span,
+.showcase-card span {
+  color: #6990a4;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.dashboard-float strong {
+  color: #102f46;
+  font-size: 1.9rem;
+}
+
+.dashboard-float--left {
+  bottom: 10vh;
+  left: auto;
+  right: 28px;
+}
+
+.dashboard-float--right {
+  right: 42px;
+  top: 11vh;
+}
+
+html[dir="rtl"] .dashboard-float--left {
+  left: 28px;
+  right: auto;
+}
+
+html[dir="rtl"] .dashboard-float--right {
+  left: 42px;
+  right: auto;
+}
+
+.ecg-line {
+  animation: ecgSlide 1.35s linear infinite;
+  background:
+    linear-gradient(90deg, transparent 0 8%, #61dff7 8% 12%, transparent 12% 20%, #61dff7 20% 23%, transparent 23% 30%, #61dff7 30% 40%, transparent 40%),
+    linear-gradient(90deg, rgba(97, 223, 247, 0.12), rgba(97, 223, 247, 0.28));
+  border-radius: 999px;
+  height: 42px;
+  overflow: hidden;
+}
+
+@keyframes ecgSlide {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 84px 0, 0 0; }
+}
+
+.radial-meter {
+  align-items: center;
+  background: conic-gradient(from 20deg, #62e7ff 0 82%, rgba(98, 231, 255, 0.16) 82% 100%);
+  border-radius: 50%;
+  display: inline-flex;
+  height: 64px;
+  justify-content: center;
+  width: 64px;
+}
+
+.radial-meter i {
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: 50%;
+  display: block;
+  height: 42px;
+  width: 42px;
+}
+
+.med-metrics {
+  margin-top: -7vh;
+  position: relative;
+  z-index: 2;
+}
+
+.med-metrics__grid {
+  backdrop-filter: blur(24px);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(104, 204, 234, 0.28);
+  border-radius: 8px;
+  box-shadow: 0 28px 80px rgba(34, 105, 135, 0.12);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  overflow: hidden;
+}
+
+.med-metrics article {
+  display: grid;
+  gap: 8px;
+  padding: 28px;
+}
+
+.med-metrics article + article {
+  border-inline-start: 1px solid rgba(104, 204, 234, 0.22);
+}
+
+.med-metrics strong {
+  color: #102f46;
+  font-size: clamp(1.5rem, 3vw, 2.35rem);
+}
+
+.med-metrics span {
+  color: #628296;
+}
+
+.med-story {
+  padding: 120px 0;
+  position: relative;
+}
+
+.med-story__grid {
+  display: grid;
+  gap: 56px;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr);
+}
+
+.story-sticky {
+  align-self: start;
+  display: grid;
+  gap: 20px;
+  padding-top: 10vh;
+  position: sticky;
+  top: 120px;
+}
+
+.story-sticky h2,
+.med-heading h2,
+.med-cta h2 {
+  color: #102f46;
+  font-size: clamp(2.2rem, 5vw, 5rem);
+  font-weight: 820;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.chapter-stack {
+  display: grid;
+  gap: 34vh;
+  padding: 8vh 0 14vh;
+}
+
+.chapter-card {
+  backdrop-filter: blur(22px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(232, 248, 255, 0.46));
+  border: 1px solid rgba(100, 205, 238, 0.28);
+  border-radius: 8px;
+  box-shadow: 0 28px 90px rgba(33, 100, 130, 0.12);
+  display: grid;
+  gap: 16px;
+  margin-left: auto;
+  max-width: 520px;
+  padding: 32px;
+}
+
+html[dir="rtl"] .chapter-card {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.chapter-card h3 {
+  color: #123047;
+  font-size: clamp(1.65rem, 3vw, 2.55rem);
+  letter-spacing: 0;
+  line-height: 1.08;
+}
+
+.chapter-card strong {
+  color: #0f6e8c;
+  font-size: 0.98rem;
+}
+
+.med-system,
+.med-products {
+  padding: 92px 24px;
+}
+
+.med-heading {
+  margin-bottom: 28px;
+  max-width: 940px;
+}
+
+.system-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1.25fr 0.88fr 0.88fr;
+}
+
+.system-panel {
+  backdrop-filter: blur(22px);
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(95, 201, 232, 0.28);
+  border-radius: 8px;
+  box-shadow: 0 22px 70px rgba(36, 108, 138, 0.1);
+  display: grid;
+  gap: 16px;
+  min-height: 230px;
+  padding: 26px;
+}
+
+.system-panel svg {
+  color: #10a8ca;
+}
+
+.system-panel strong {
+  color: #123047;
+  font-size: 1.35rem;
+}
+
+.signal-rail {
+  align-content: end;
+  display: grid;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.signal-rail span {
+  animation: pulseSignal 2.4s ease-in-out infinite;
+  background: rgba(235, 250, 255, 0.8);
+  border: 1px solid rgba(88, 210, 242, 0.28);
+  border-radius: 999px;
+  color: #0f6e8c;
+  padding: 12px 14px;
+}
+
+.signal-rail span:nth-child(2) { animation-delay: 0.2s; }
+.signal-rail span:nth-child(3) { animation-delay: 0.4s; }
+.signal-rail span:nth-child(4) { animation-delay: 0.6s; }
+
+html[dir="rtl"] .signal-rail span {
+  animation-name: pulseSignalRtl;
+}
+
+@keyframes pulseSignal {
+  0%, 100% { box-shadow: 0 0 0 rgba(92, 224, 248, 0); transform: translateX(0); }
+  50% { box-shadow: 0 0 28px rgba(92, 224, 248, 0.22); transform: translateX(4px); }
+}
+
+@keyframes pulseSignalRtl {
+  0%, 100% { box-shadow: 0 0 0 rgba(92, 224, 248, 0); transform: translateX(0); }
+  50% { box-shadow: 0 0 28px rgba(92, 224, 248, 0.22); transform: translateX(-4px); }
+}
+
+.showcase-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.showcase-card {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(95, 201, 232, 0.24);
+  border-radius: 8px;
+  box-shadow: 0 22px 70px rgba(36, 108, 138, 0.1);
+  display: grid;
+  gap: 18px;
+  overflow: hidden;
+  padding: 12px;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.55s ease;
+}
+
+.showcase-card:hover {
+  box-shadow: 0 34px 90px rgba(28, 117, 150, 0.16);
+  transform: translateY(-8px) rotateX(2deg);
+}
+
+.showcase-card img {
+  aspect-ratio: 4 / 3;
+  border-radius: 6px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.showcase-card div {
+  display: grid;
+  gap: 7px;
+  padding: 0 6px 8px;
+}
+
+.showcase-card strong {
+  color: #123047;
+  font-size: 1.08rem;
+  line-height: 1.25;
+}
+
+.showcase-card small {
+  color: #0f6e8c;
+  font-weight: 900;
+}
+
+.med-cta {
+  padding: 120px 0 24px;
+  position: relative;
+}
+
+.med-cta__inner {
+  align-items: center;
+  backdrop-filter: blur(24px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(218, 245, 255, 0.58));
+  border: 1px solid rgba(95, 201, 232, 0.28);
+  border-radius: 8px;
+  box-shadow: 0 28px 90px rgba(36, 108, 138, 0.12);
+  display: grid;
+  gap: 24px;
+  justify-items: start;
+  padding: clamp(28px, 6vw, 72px);
+}
+
+:root[data-theme="dark"] .med-page {
+  background:
+    linear-gradient(180deg, rgba(8, 21, 33, 0.98) 0%, rgba(13, 34, 49, 0.94) 52%, #081521 100%);
+}
+
+:root[data-theme="dark"] .med-hero h1,
+:root[data-theme="dark"] .story-sticky h2,
+:root[data-theme="dark"] .med-heading h2,
+:root[data-theme="dark"] .med-cta h2,
+:root[data-theme="dark"] .chapter-card h3,
+:root[data-theme="dark"] .system-panel strong,
+:root[data-theme="dark"] .showcase-card strong,
+:root[data-theme="dark"] .med-metrics strong,
+:root[data-theme="dark"] .dashboard-float strong {
+  color: #eef8ffa3;
+}
+
+:root[data-theme="dark"] .med-hero p,
+:root[data-theme="dark"] .story-sticky p,
+:root[data-theme="dark"] .chapter-card p,
+:root[data-theme="dark"] .system-panel p {
+  color: #bdd4df;
+}
+
+:root[data-theme="dark"] .dashboard-float,
+:root[data-theme="dark"] .med-metrics__grid,
+:root[data-theme="dark"] .chapter-card,
+:root[data-theme="dark"] .system-panel,
+:root[data-theme="dark"] .showcase-card,
+:root[data-theme="dark"] .med-cta__inner,
+:root[data-theme="dark"] .med-kicker,
+:root[data-theme="dark"] .med-button--glass {
+  background: rgba(11, 31, 46, 0.68);
+  border-color: rgba(111, 208, 240, 0.26);
+}
+
+@media (max-width: 980px) {
+  .med-hero {
+    min-height: 92vh;
+  }
+
+  .med-hero__copy {
+    max-width: 620px;
+  }
+
+  .medical-webgl {
+    opacity: 0.72;
+  }
+
+  .dashboard-float {
+    position: relative;
+  }
+
+  .dashboard-float--left,
+  .dashboard-float--right {
+    bottom: auto;
+    left: auto;
+    right: auto;
+    top: auto;
+  }
+
+  .med-hero__inner {
+    align-content: center;
+    gap: 18px;
+  }
+
+  .med-metrics {
+    margin-top: 0;
+  }
+
+  .med-metrics__grid,
+  .med-story__grid,
+  .system-grid,
+  .showcase-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .story-sticky {
+    position: static;
+  }
+
+  .chapter-stack {
+    gap: 28px;
+    padding: 0;
+  }
+
+  .system-panel--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .med-hero {
+    min-height: auto;
+    padding: 52px 0 64px;
+  }
+
+  .medical-webgl {
+    opacity: 0.44;
+  }
+
+  .med-hero__inner {
+    min-height: auto;
+  }
+
+  .med-hero h1 {
+      color: #eef8ffa3;
+    font-size: clamp(3.4rem, 18vw, 5.4rem);
+    line-height: 0.95;
+  }
+
+  .med-hero p,
+  .story-sticky p,
+  .chapter-card p,
+  .system-panel p {
+    font-size: 0.96rem;
+    line-height: 1.7;
+  }
+
+  .med-hero__actions,
+  .med-products .section-heading--inline {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .med-hero__actions .button,
+  .med-products .button {
+    width: 100%;
+  }
+
+  .dashboard-float {
+    min-width: 0;
+    justify-self: stretch;
+    left: auto;
+    right: auto;
+    width: 100%;
+  }
+
+  html[dir="rtl"] .dashboard-float--left,
+  html[dir="rtl"] .dashboard-float--right {
+    left: auto;
+    right: auto;
+  }
+
+  .med-metrics__grid,
+  .med-story__grid,
+  .system-grid,
+  .showcase-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .med-metrics article + article {
+    border-inline-start: 0;
+    border-top: 1px solid rgba(104, 204, 234, 0.22);
+  }
+
+  .med-story,
+  .med-system,
+  .med-products,
+  .med-cta {
+    padding-top: 70px;
+  }
+
+  .chapter-card,
+  .system-panel {
+    padding: 22px;
+  }
 }

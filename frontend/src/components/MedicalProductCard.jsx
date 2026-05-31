@@ -16,6 +16,10 @@ function MedicalProductCard({ product }) {
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
+  const handleOpenProduct = () => {
+    navigate(`/products/${product._id}`);
+  };
+
   const handleAddToCart = (event) => {
     event.stopPropagation();
     addToCart(product);
@@ -23,44 +27,35 @@ function MedicalProductCard({ product }) {
   };
 
   return (
-    <article
-      className="product-card"
-      onClick={() => navigate(`/products/${product._id}`)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          navigate(`/products/${product._id}`);
-        }
-      }}
-      role="button"
-      tabIndex={0}
-    >
-      <div className="product-card__media">
-        <img
-          alt={product.name}
-          className="product-card__image"
-          decoding="async"
-          loading="lazy"
-          onError={handleProductImageError}
-          src={getProductImage(product)}
-          width={400}
-          height={364}
-        />
-        
-        {product.stock <= 0 ? (
-          <span className="product-card__stock product-card__stock--empty">
-            {t("productCard.outOfStock")}
-          </span>
-        ) : (
-          <span className="product-card__stock">{t("productCard.available")}</span>
-        )}
-      </div>
+    <article className="product-card">
+      <button className="product-card__open" onClick={handleOpenProduct} type="button">
+        <span className="product-card__media">
+          <img
+            alt={product.name}
+            className="product-card__image"
+            decoding="async"
+            loading="lazy"
+            onError={handleProductImageError}
+            src={getProductImage(product)}
+            width={400}
+            height={364}
+          />
 
-      <div className="product-card__body">
-        <span className="eyebrow">{product.category}</span>
-        <h3>{product.name}</h3>
-        <p>{truncateText(product.description, 92)}</p>
-      </div>
+          {product.stock <= 0 ? (
+            <span className="product-card__stock product-card__stock--empty">
+              {t("productCard.outOfStock")}
+            </span>
+          ) : (
+            <span className="product-card__stock">{t("productCard.available")}</span>
+          )}
+        </span>
+
+        <span className="product-card__body">
+          <span className="eyebrow">{product.category}</span>
+          <h3>{product.name}</h3>
+          <p>{truncateText(product.description, 92)}</p>
+        </span>
+      </button>
 
       <div className="product-card__footer">
         <strong>{formatCurrency(product.price)}</strong>

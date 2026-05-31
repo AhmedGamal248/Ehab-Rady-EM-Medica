@@ -1,16 +1,12 @@
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import {
-  MdAccessTimeFilled,
   MdEmail,
-  MdMedicalServices,
   MdPhoneInTalk,
   MdPlace,
 } from "react-icons/md";
 
 export default function SiteFooter() {
   const { t } = useTranslation();
-  const categories = t("footer.categories", { returnObjects: true });
   const year = new Date().getFullYear();
 
   return (

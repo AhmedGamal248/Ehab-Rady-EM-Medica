@@ -13,7 +13,6 @@ export default function RegisterPage() {
   const { cartCount } = useCart();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const introPoints = t("registerPage.introPoints", { returnObjects: true });
 
   const handleSubmit = async (event) => {
     event.preventDefault();

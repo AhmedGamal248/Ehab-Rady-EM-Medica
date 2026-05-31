@@ -7,7 +7,7 @@ export default function FloatingCart() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { cartCount, total } = useCart();
+  const { cartCount } = useCart();
 
   if (cartCount === 0 || location.pathname === "/cart") return null;
 
