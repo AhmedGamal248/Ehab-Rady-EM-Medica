@@ -15,6 +15,7 @@ import {
   MdAccessTime,
   MdClose,
   MdCheckCircle,
+  MdVisibility,
 } from "react-icons/md";
 import api from "../../services/api";
 import { uploadImages } from "../../services/upload";
@@ -136,6 +137,147 @@ function UploadOverlay({ active }) {
     }}>
       <div className="spinner" style={{ width: 28, height: 28 }} role="status" aria-label="Uploading" />
       <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)" }}>Uploading…</span>
+    </div>
+  );
+}
+
+function OrderDetailsDialog({ order, loading, onClose, getStatusLabel }) {
+  if (!order && !loading) return null;
+
+  const items = Array.isArray(order?.items) ? order.items : [];
+  const customerName = order?.user?.name || order?.fullName || "Unknown";
+  const customerEmail = order?.user?.email || order?.email || "—";
+  const phone = order?.mobileNumber || order?.phone || order?.user?.phone || "—";
+  const shippingAddress = order?.address || "—";
+  const shippingCost = Number(order?.shippingCost || 0);
+  const subtotal = Number(order?.subtotal || 0);
+  const total = Number(order?.total || 0);
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Order details"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 520,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(0,0,0,0.45)",
+        backdropFilter: "blur(6px)",
+        padding: "16px",
+      }}
+    >
+      <div
+        style={{
+          background: "var(--surface-solid)",
+          border: "1px solid var(--border)",
+          borderRadius: "var(--r-xl)",
+          boxShadow: "var(--shadow-xl)",
+          width: "min(980px, 100%)",
+          maxHeight: "88vh",
+          overflow: "auto",
+          display: "grid",
+          gap: 16,
+          padding: "22px",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+          <div>
+            <strong style={{ display: "block", fontSize: "1.1rem" }}>
+              Order #{order?._id?.slice(-6) || "—"}
+            </strong>
+            {order?.createdAt && (
+              <small style={{ color: "var(--text-secondary)" }}>
+                {formatDate(order.createdAt)}
+              </small>
+            )}
+          </div>
+          <button className="icon-button" type="button" onClick={onClose} aria-label="Close order details">
+            <MdClose size={18} aria-hidden="true" />
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="state-card" aria-busy="true">
+            <div className="spinner" role="status" />
+            <p>Loading order details…</p>
+          </div>
+        ) : (
+          <>
+            <div style={{ display: "grid", gap: 8 }}>
+              <strong>Customer Information</strong>
+              <div style={{ color: "var(--text-secondary)", display: "grid", gap: 4 }}>
+                <span><strong style={{ color: "var(--text-primary)" }}>Name:</strong> {customerName}</span>
+                <span><strong style={{ color: "var(--text-primary)" }}>Email:</strong> {customerEmail}</span>
+                <span><strong style={{ color: "var(--text-primary)" }}>Phone:</strong> {phone}</span>
+                <span><strong style={{ color: "var(--text-primary)" }}>Address:</strong> {shippingAddress}</span>
+                <span>
+                  <strong style={{ color: "var(--text-primary)" }}>Status:</strong>{" "}
+                  <span className={`status-pill status-pill--${order?.status || "pending"}`}>
+                    {getStatusLabel(order?.status || "pending")}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gap: 10 }}>
+              <strong>Items</strong>
+              {items.length === 0 ? (
+                <p style={{ color: "var(--text-secondary)" }}>No items found for this order.</p>
+              ) : (
+                items.map((item, index) => {
+                  const itemQty = Number(item.quantity || 0);
+                  const unitPrice = Number(item.price || 0);
+                  const itemSubtotal = itemQty * unitPrice;
+                  const itemImage = item.image || getProductImage(item.product || {});
+                  return (
+                    <article
+                      key={`${item.product?._id || item.name}-${index}`}
+                      style={{
+                        border: "1px solid var(--border)",
+                        borderRadius: "var(--r-md)",
+                        padding: 12,
+                        display: "grid",
+                        gap: 10,
+                        gridTemplateColumns: "72px minmax(0,1fr)",
+                        alignItems: "start",
+                      }}
+                    >
+                      <img
+                        src={itemImage}
+                        alt={item.name || "Order item"}
+                        width={72}
+                        height={72}
+                        style={{ width: 72, height: 72, borderRadius: 10, objectFit: "cover" }}
+                      />
+                      <div style={{ display: "grid", gap: 4 }}>
+                        <strong>{item.name || item.product?.name || "Unnamed product"}</strong>
+                        {item.color?.name && (
+                          <span style={{ color: "var(--text-secondary)" }}>
+                            Color: {item.color.name}
+                          </span>
+                        )}
+                        <span style={{ color: "var(--text-secondary)" }}>Quantity: {itemQty}</span>
+                        <span style={{ color: "var(--text-secondary)" }}>Unit Price: {formatCurrency(unitPrice)}</span>
+                        <strong>Subtotal: {formatCurrency(itemSubtotal)}</strong>
+                      </div>
+                    </article>
+                  );
+                })
+              )}
+            </div>
+
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 12, display: "grid", gap: 6 }}>
+              <span style={{ color: "var(--text-secondary)" }}>Subtotal: {formatCurrency(subtotal)}</span>
+              <span style={{ color: "var(--text-secondary)" }}>Shipping: {formatCurrency(shippingCost)}</span>
+              <strong>Total: {formatCurrency(total)}</strong>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -506,6 +648,9 @@ export default function AdminDashboardPage() {
   const [editProduct, setEditProduct] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [savingStatus, setSavingStatus] = useState(null); // orderId being saved
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [loadingOrderDetails, setLoadingOrderDetails] = useState(false);
 
   const [form, dispatch] = useReducer(formReducer, initialForm);
   const { confirm, pending: confirmPending, handleResult: handleConfirmResult } = useConfirm();
@@ -647,12 +792,38 @@ export default function AdminDashboardPage() {
     }
   }, [t]);
 
+  const handleOpenOrderDetails = useCallback(async (orderId) => {
+    setSelectedOrderId(orderId);
+    setLoadingOrderDetails(true);
+    setSelectedOrder(null);
+    try {
+      const res = await api.get(`/orders/${orderId}`);
+      setSelectedOrder(res.data?.data || res.data || null);
+    } catch {
+      toast.error("Unable to load order details");
+    } finally {
+      setLoadingOrderDetails(false);
+    }
+  }, []);
+
+  const handleCloseOrderDetails = useCallback(() => {
+    setSelectedOrderId(null);
+    setSelectedOrder(null);
+    setLoadingOrderDetails(false);
+  }, []);
+
   const getStatusLabel = (status) => t(`common.orderStatus.${status}`);
 
   /* ── Render ── */
   return (
     <div className="page">
       <ConfirmDialog pending={confirmPending} onResult={handleConfirmResult} />
+      <OrderDetailsDialog
+        order={selectedOrder}
+        loading={loadingOrderDetails}
+        onClose={handleCloseOrderDetails}
+        getStatusLabel={getStatusLabel}
+      />
 
       <section className="container section admin-page">
         <div className="section-heading section-heading--compact">
@@ -850,6 +1021,7 @@ export default function AdminDashboardPage() {
                 <span role="columnheader">{t("adminDashboardPage.ordersTable.total")}</span>
                 <span role="columnheader">{t("adminDashboardPage.ordersTable.status")}</span>
                 <span role="columnheader">{t("adminDashboardPage.ordersTable.update")}</span>
+                <span role="columnheader">{t("adminDashboardPage.ordersTable.details")}</span>
               </div>
 
               {orders.map((order, rowIdx) => (
@@ -941,6 +1113,21 @@ export default function AdminDashboardPage() {
                         aria-label="Saving"
                       />
                     )}
+                  </div>
+
+                  <div
+                    role="cell"
+                    data-label={t("adminDashboardPage.ordersTable.details")}
+                  >
+                    <button
+                      className="button button--secondary button--sm"
+                      type="button"
+                      onClick={() => handleOpenOrderDetails(order._id)}
+                      disabled={loadingOrderDetails && selectedOrderId === order._id}
+                    >
+                      <MdVisibility size={16} aria-hidden="true" />
+                      <span>{t("adminDashboardPage.ordersTable.viewDetails")}</span>
+                    </button>
                   </div>
                 </article>
               ))}

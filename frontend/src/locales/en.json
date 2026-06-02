@@ -404,7 +404,9 @@
       "date": "Date",
       "total": "Total",
       "status": "Status",
-      "update": "Update"
+      "update": "Update",
+      "details": "Details",
+      "viewDetails": "View details"
     },
     "unknownCustomer": "Unknown",
     "statusUpdated": "Order status updated",

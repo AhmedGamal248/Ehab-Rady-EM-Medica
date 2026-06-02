@@ -24,7 +24,7 @@ exports.createOrder = async (req, res, next) => {
 
     const productIds = Array.from(quantityByProductId.keys());
     const products = await Product.find({ _id: { $in: productIds } })
-      .select("name price stock image category")
+      .select("name price stock image images category")
       .lean();
 
     if (products.length !== productIds.length) {
@@ -55,6 +55,7 @@ exports.createOrder = async (req, res, next) => {
         quantity,
         name: product.name,
         price: product.price,
+        image: product.image || product.images?.[0] || "",
         color: colorByProductId.get(productId),
       });
     });

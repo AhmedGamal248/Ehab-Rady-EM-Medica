@@ -1974,7 +1974,8 @@ html[dir="rtl"] .signal-rail span { animation-name: pulseSignalRtl; }
     minmax(150px,1.1fr)
     minmax(100px,0.7fr)
     minmax(110px,0.7fr)
-    minmax(150px,0.9fr);
+    minmax(160px,1fr)
+    minmax(130px,0.8fr);
 }
 .admin-order__phone,
 .admin-order__date {

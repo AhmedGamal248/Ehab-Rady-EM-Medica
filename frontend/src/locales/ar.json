@@ -397,7 +397,9 @@
       "date": "التوقيت",
       "total": "الإجمالي",
       "status": "الحالة",
-      "update": "التحديث"
+      "update": "التحديث",
+      "details": "التفاصيل",
+      "viewDetails": "عرض التفاصيل"
     },
     "unknownCustomer": "غير معروف",
     "statusUpdated": "تم تحديث حالة الطلب",
