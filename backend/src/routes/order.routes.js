@@ -16,7 +16,7 @@ const {
   orderStatusSchema,
 } = require("../validation/schemas");
 
-router.post("/", auth, validate(orderCreateSchema), createOrder);
+router.post("/", validate(orderCreateSchema), createOrder);
 router.get("/my", auth, getMyOrders);
 router.get("/", auth, admin, getAllOrders);
 router.get("/:id", auth, admin, validate(idParamSchema, "params"), getOrderById);

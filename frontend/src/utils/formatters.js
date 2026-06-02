@@ -59,13 +59,13 @@ export function formatCurrency(value) {
 
 /* ── Image helpers ────────────────────────────────────────── */
 export function getProductImage(product) {
-  const raw = product?.image || product?.images?.[0];
+  const raw = product?.image || product?.images?.[0] || product?.colors?.[0]?.images?.[0];
   if (!raw) return productFallbackImage;
   return optimizeCloudinaryUrl(raw, 400);
 }
 
 export function getProductImageFull(product) {
-  const raw = product?.image || product?.images?.[0];
+  const raw = product?.image || product?.images?.[0] || product?.colors?.[0]?.images?.[0];
   if (!raw) return productFallbackImage;
   return optimizeCloudinaryUrl(raw, 800);
 }

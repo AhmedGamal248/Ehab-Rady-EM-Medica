@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { MdDelete, MdLocalShipping, MdShoppingCart } from "react-icons/md";
-import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import {
   formatCurrency,
@@ -12,17 +12,17 @@ import {
 export default function CartPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { cart, cartCount, removeFromCart, total, updateQuantity } = useCart();
 
   const handleCheckout = () => {
-    if (!user) {
-      localStorage.setItem("redirectAfterLogin", "/order");
-      navigate("/login");
-      return;
-    }
-
     navigate("/order");
+  };
+
+  const handleUpdateQuantity = (id, quantity) => {
+    const result = updateQuantity(id, quantity);
+    if (!result?.ok) {
+      toast.error(result.message || t("cartPage.stockExceeded"));
+    }
   };
 
   if (cart.length === 0) {
@@ -63,13 +63,14 @@ export default function CartPage() {
                 <span className="eyebrow">{item.category}</span>
                 <h2>{item.name}</h2>
                 <p>{formatCurrency(item.price)}</p>
+                <small>{t("productCard.inStock", { count: item.stock || 0 })}</small>
               </div>
 
               <div className="cart-item__actions">
                 <div className="stepper">
                   <button
                     aria-label={t("cartPage.decreaseQuantity")}
-                    onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                    onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)}
                     type="button"
                   >
                     -
@@ -77,7 +78,7 @@ export default function CartPage() {
                   <strong>{item.quantity}</strong>
                   <button
                     aria-label={t("cartPage.increaseQuantity")}
-                    onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                    onClick={() => handleUpdateQuantity(item._id, item.quantity + 1)}
                     type="button"
                   >
                     +

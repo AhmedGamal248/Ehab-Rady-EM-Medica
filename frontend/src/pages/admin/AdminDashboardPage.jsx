@@ -45,7 +45,16 @@ function getApiError(err, fallback) {
 }
 
 /* ── Form state with useReducer ──────────────────────────────── */
-const initialForm = { name: "", description: "", price: "", category: "", stock: "", image: "", images: [] };
+const initialForm = {
+  name: "",
+  description: "",
+  price: "",
+  category: "",
+  stock: "",
+  image: "",
+  images: [],
+  colors: [],
+};
 
 function formReducer(state, action) {
   switch (action.type) {
@@ -147,6 +156,7 @@ function ProductForm({ form, dispatch, editProduct, uploading, setUploading, onS
   const { t } = useTranslation();
   const mainUploadRef = useRef(null);
   const extraUploadRef = useRef(null);
+  const colorUploadRefs = useRef([]);
 
   const field = (name) => ({
     value: form[name],
@@ -187,6 +197,68 @@ function ProductForm({ form, dispatch, editProduct, uploading, setUploading, onS
 
   const removeExtraImage = (idx) => {
     dispatch({ type: "set", field: "images", value: form.images.filter((_, i) => i !== idx) });
+  };
+
+  const addColor = () => {
+    dispatch({
+      type: "set",
+      field: "colors",
+      value: [...form.colors, { name: "", hex: "#000000", images: [] }],
+    });
+  };
+
+  const updateColor = (index, fieldName, value) => {
+    dispatch({
+      type: "set",
+      field: "colors",
+      value: form.colors.map((color, colorIndex) =>
+        colorIndex === index ? { ...color, [fieldName]: value } : color
+      ),
+    });
+  };
+
+  const removeColor = (index) => {
+    dispatch({
+      type: "set",
+      field: "colors",
+      value: form.colors.filter((_, colorIndex) => colorIndex !== index),
+    });
+  };
+
+  const handleColorImagesUpload = (index) => async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setUploading(true);
+    try {
+      const urls = await uploadImages(files);
+      dispatch({
+        type: "set",
+        field: "colors",
+        value: form.colors.map((color, colorIndex) =>
+          colorIndex === index
+            ? { ...color, images: [...(color.images || []), ...urls].slice(0, 10) }
+            : color
+        ),
+      });
+      toast.success(t("adminDashboardPage.uploadColorImagesSuccess"));
+    } catch (err) {
+      toast.error(err.response?.data?.message || t("adminDashboardPage.uploadColorImagesError"));
+    } finally {
+      setUploading(false);
+      if (colorUploadRefs.current[index]) colorUploadRefs.current[index].value = "";
+    }
+  };
+
+  const removeColorImage = (colorIndex, imageIndex) => {
+    dispatch({
+      type: "set",
+      field: "colors",
+      value: form.colors.map((color, index) =>
+        index === colorIndex
+          ? { ...color, images: (color.images || []).filter((_, idx) => idx !== imageIndex) }
+          : color
+      ),
+    });
   };
 
   return (
@@ -312,6 +384,97 @@ function ProductForm({ form, dispatch, editProduct, uploading, setUploading, onS
             </div>
           )}
         </div>
+
+        <div className="admin-form__full color-variations">
+          <div className="color-variations__header">
+            <div>
+              <strong>{t("adminDashboardPage.colorVariations")}</strong>
+              <small>{t("adminDashboardPage.colorVariationsHelper")}</small>
+            </div>
+            <button className="button button--secondary" onClick={addColor} type="button">
+              <MdAdd size={16} aria-hidden="true" />
+              {t("adminDashboardPage.addColor")}
+            </button>
+          </div>
+
+          {form.colors.length === 0 ? (
+            <p>{t("adminDashboardPage.noColors")}</p>
+          ) : (
+            <div className="color-variations__list">
+              {form.colors.map((color, colorIndex) => (
+                <section className="color-variation" key={colorIndex}>
+                  <div className="color-variation__fields">
+                    <label htmlFor={`af-color-name-${colorIndex}`}>
+                      {t("adminDashboardPage.colorName")}
+                      <input
+                        id={`af-color-name-${colorIndex}`}
+                        onChange={(e) => updateColor(colorIndex, "name", e.target.value)}
+                        required
+                        type="text"
+                        value={color.name}
+                      />
+                    </label>
+                    <label htmlFor={`af-color-hex-${colorIndex}`}>
+                      {t("adminDashboardPage.colorHex")}
+                      <input
+                        id={`af-color-hex-${colorIndex}`}
+                        onChange={(e) => updateColor(colorIndex, "hex", e.target.value)}
+                        required
+                        type="color"
+                        value={color.hex || "#000000"}
+                      />
+                    </label>
+                    <button
+                      aria-label={t("adminDashboardPage.removeColor")}
+                      className="icon-button icon-button--danger"
+                      onClick={() => removeColor(colorIndex)}
+                      type="button"
+                    >
+                      <MdDelete size={18} aria-hidden="true" />
+                    </button>
+                  </div>
+
+                  <div className="upload-card" style={{ position: "relative" }}>
+                    <UploadOverlay active={uploading} />
+                    <span>{t("adminDashboardPage.colorImages")}</span>
+                    <label
+                      htmlFor={`af-color-images-${colorIndex}`}
+                      style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}
+                    >
+                      <MdCloudUpload size={20} aria-hidden="true" />
+                      <small>{t("adminDashboardPage.colorImagesHelper")}</small>
+                    </label>
+                    <input
+                      id={`af-color-images-${colorIndex}`}
+                      ref={(node) => { colorUploadRefs.current[colorIndex] = node; }}
+                      accept="image/*"
+                      multiple
+                      onChange={handleColorImagesUpload(colorIndex)}
+                      type="file"
+                      disabled={uploading || (color.images || []).length >= 10}
+                      style={{ position: "absolute", opacity: 0, width: 1, height: 1 }}
+                    />
+                    {(color.images || []).length > 0 && (
+                      <div className="upload-card__grid">
+                        {color.images.map((img, imageIndex) => (
+                          <div key={`${img}-${imageIndex}`} className="upload-card__thumb">
+                            <img alt={`${color.name || "Color"} ${imageIndex + 1}`} src={img} />
+                            <button
+                              onClick={() => removeColorImage(colorIndex, imageIndex)}
+                              type="button"
+                            >
+                              {t("adminDashboardPage.delete")}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="admin-actions">
@@ -418,6 +581,7 @@ export default function AdminDashboardPage() {
         stock: String(product.stock),
         image: product.image || "",
         images: product.images || [],
+        colors: product.colors || [],
       },
     });
     setShowForm(true);
@@ -426,7 +590,18 @@ export default function AdminDashboardPage() {
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-    const payload = { ...form, price: Number(form.price), stock: Number(form.stock) };
+    const payload = {
+      ...form,
+      price: Number(form.price),
+      stock: Number(form.stock),
+      colors: form.colors
+        .map((color) => ({
+          name: color.name.trim(),
+          hex: color.hex || "#000000",
+          images: color.images || [],
+        }))
+        .filter((color) => color.name),
+    };
 
     try {
       if (editProduct) {
@@ -688,7 +863,7 @@ export default function AdminDashboardPage() {
                     role="cell"
                     data-label={t("adminDashboardPage.ordersTable.customer")}
                   >
-                    {order.user?.name || t("adminDashboardPage.unknownCustomer")}
+                    {order.user?.name || order.fullName || t("adminDashboardPage.unknownCustomer")}
                   </span>
 
                   <span
@@ -697,7 +872,7 @@ export default function AdminDashboardPage() {
                     data-label={t("adminDashboardPage.ordersTable.phone")}
                   >
                     <MdPhone size={14} aria-hidden="true" />
-                    <span dir="ltr">{order.phone || order.user?.phone || "—"}</span>
+                    <span dir="ltr">{order.mobileNumber || order.phone || order.user?.phone || "—"}</span>
                   </span>
 
                   <span
@@ -739,7 +914,7 @@ export default function AdminDashboardPage() {
                     style={{ display: "flex", alignItems: "center", gap: 8 }}
                   >
                     <select
-                      aria-label={`Update status for order by ${order.user?.name || "unknown"}`}
+                      aria-label={`Update status for order by ${order.user?.name || order.fullName || "unknown"}`}
                       disabled={savingStatus === order._id}
                       onChange={(e) => handleStatusChange(order._id, e.target.value)}
                       style={{

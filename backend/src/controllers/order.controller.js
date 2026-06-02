@@ -2,14 +2,24 @@ const Order = require("../models/order.model");
 const Product = require("../models/product.model");
 const { success, error } = require("../utils/response");
 
+const STOCK_ERROR_MESSAGE = "The requested quantity exceeds available stock.";
+
+function calculateShippingCost(governorate) {
+  return ["Cairo", "Giza"].includes(governorate) ? 60 : 100;
+}
+
 exports.createOrder = async (req, res, next) => {
   try {
     const quantityByProductId = new Map();
+    const colorByProductId = new Map();
 
     req.body.items.forEach((item) => {
       const key = item.product.toString();
       const currentQuantity = quantityByProductId.get(key) || 0;
       quantityByProductId.set(key, currentQuantity + item.quantity);
+      if (item.color && !colorByProductId.has(key)) {
+        colorByProductId.set(key, item.color);
+      }
     });
 
     const productIds = Array.from(quantityByProductId.keys());
@@ -23,7 +33,7 @@ exports.createOrder = async (req, res, next) => {
 
     const unavailableItems = [];
     const orderItems = [];
-    let total = 0;
+    let subtotal = 0;
 
     products.forEach((product) => {
       const productId = product._id.toString();
@@ -39,31 +49,78 @@ exports.createOrder = async (req, res, next) => {
         return;
       }
 
-      total += product.price * quantity;
+      subtotal += product.price * quantity;
       orderItems.push({
         product: product._id,
         quantity,
         name: product.name,
         price: product.price,
+        color: colorByProductId.get(productId),
       });
     });
 
     if (unavailableItems.length > 0) {
       return error(
         res,
-        "Some items are no longer available in the requested quantity",
+        STOCK_ERROR_MESSAGE,
         400,
         unavailableItems
       );
     }
 
-    const order = await Order.create({
-      user: req.user.id,
-      items: orderItems,
-      address: req.body.address,
-      phone: req.body.phone,
-      total,
-    });
+    const decrementedItems = [];
+    for (const item of orderItems) {
+      const updatedProduct = await Product.findOneAndUpdate(
+        { _id: item.product, stock: { $gte: item.quantity } },
+        { $inc: { stock: -item.quantity } },
+        { new: true }
+      ).select("_id");
+
+      if (!updatedProduct) {
+        await Promise.all(
+          decrementedItems.map((decrementedItem) =>
+            Product.findByIdAndUpdate(decrementedItem.product, {
+              $inc: { stock: decrementedItem.quantity },
+            })
+          )
+        );
+
+        return error(res, STOCK_ERROR_MESSAGE, 400);
+      }
+
+      decrementedItems.push(item);
+    }
+
+    const shippingCost = calculateShippingCost(req.body.governorate);
+    const total = subtotal + shippingCost;
+    const address = `${req.body.city}, ${req.body.governorate}`;
+
+    let order;
+    try {
+      order = await Order.create({
+        user: req.user?.id || null,
+        items: orderItems,
+        fullName: req.body.fullName,
+        email: req.body.email || "",
+        governorate: req.body.governorate,
+        city: req.body.city,
+        mobileNumber: req.body.mobileNumber,
+        address,
+        phone: req.body.mobileNumber,
+        subtotal,
+        shippingCost,
+        total,
+      });
+    } catch (createErr) {
+      await Promise.all(
+        decrementedItems.map((decrementedItem) =>
+          Product.findByIdAndUpdate(decrementedItem.product, {
+            $inc: { stock: decrementedItem.quantity },
+          })
+        )
+      );
+      throw createErr;
+    }
 
     const createdOrder = await Order.findById(order._id)
       .populate("items.product", "name price image category")

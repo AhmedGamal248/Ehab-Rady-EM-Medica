@@ -4,8 +4,9 @@ const colorSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 50 },
     hex: { type: String, required: true, trim: true, maxlength: 9 },
+    images: [{ type: String, trim: true }],
   },
-  { _id: false }
+  { _id: true }
 );
 
 const productSchema = new mongoose.Schema(

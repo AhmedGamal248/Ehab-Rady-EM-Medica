@@ -37,7 +37,7 @@ exports.getAllProducts = async (req, res, next) => {
     const [total, products] = await Promise.all([
       Product.countDocuments(filter),
       Product.find(filter)
-        .select("name description price image category stock colors")
+        .select("name description price image images category stock colors")
         .sort(sort)
         .skip(skip)
         .limit(lim)

@@ -77,14 +77,7 @@ export default function App() {
                       <Route element={<CartPage />}           path="/cart" />
                       <Route element={<LoginPage />}          path="/login" />
                       <Route element={<RegisterPage />}       path="/register" />
-                      <Route
-                        element={
-                          <ProtectedRoute>
-                            <OrderPage />
-                          </ProtectedRoute>
-                        }
-                        path="/order"
-                      />
+                      <Route element={<OrderPage />} path="/order" />
                       <Route
                         element={
                           <ProtectedRoute adminOnly>
@@ -115,9 +108,11 @@ export default function App() {
                   padding:     "12px 18px",
                 },
                 success: {
+                  duration: 1000,
                   iconTheme: { primary: "var(--success)", secondary: "#fff" },
                 },
                 error: {
+                  duration: 5000,
                   iconTheme: { primary: "var(--danger)", secondary: "#fff" },
                 },
               }}

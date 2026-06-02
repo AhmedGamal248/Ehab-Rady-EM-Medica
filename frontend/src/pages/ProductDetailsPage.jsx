@@ -40,6 +40,7 @@ export default function ProductDetailsPage() {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const isRtl = i18n.dir() === "rtl";
@@ -52,6 +53,7 @@ export default function ProductDetailsPage() {
         setLoading(true);
         setError("");
         setActiveImageIndex(0);
+        setSelectedColorIndex(0);
 
         const productResponse = await api.get(`/products/${id}`);
         const nextProduct = getSingleProductPayload(productResponse);
@@ -96,17 +98,44 @@ export default function ProductDetailsPage() {
     };
   }, [id, t]);
 
+  const availableColors = useMemo(
+    () => (product?.colors || []).filter((color) => color.name),
+    [product]
+  );
+
+  const selectedColor = availableColors[selectedColorIndex];
+
   const images = useMemo(() => {
     if (!product) {
       return [];
     }
 
-    return [product.image, ...(product.images || [])].filter(Boolean);
-  }, [product]);
+    const colorImages = selectedColor?.images || [];
+    const baseImages = [product.image, ...(product.images || [])].filter(Boolean);
+    return (colorImages.length > 0 ? colorImages : baseImages).filter(Boolean);
+  }, [product, selectedColor]);
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    const result = addToCart(product, quantity, { selectedColor });
+    if (!result.ok) {
+      toast.error(result.message || t("cartPage.stockExceeded"));
+      return;
+    }
     toast.success(t("productDetailsPage.addedSuccess", { count: quantity }));
+  };
+
+  const handleIncreaseQuantity = () => {
+    if (quantity >= product.stock) {
+      toast.error(t("cartPage.stockExceeded"));
+      return;
+    }
+
+    setQuantity((value) => value + 1);
+  };
+
+  const handleColorSelect = (index) => {
+    setSelectedColorIndex(index);
+    setActiveImageIndex(0);
   };
 
   const scrollSlider = (direction) => {
@@ -225,6 +254,27 @@ export default function ProductDetailsPage() {
             <MdVerifiedUser size={32} />
           </div>
 
+          {availableColors.length > 0 && (
+            <div className="product-details__colors">
+              <span>{t("productDetailsPage.colors")}</span>
+              <div>
+                {availableColors.map((color, index) => (
+                  <button
+                    aria-label={t("productDetailsPage.selectColor", { color: color.name })}
+                    aria-pressed={selectedColorIndex === index}
+                    className={selectedColorIndex === index ? "is-active" : ""}
+                    key={`${color.name}-${color.hex}-${index}`}
+                    onClick={() => handleColorSelect(index)}
+                    type="button"
+                  >
+                    <i style={{ background: color.hex || "transparent" }} />
+                    <span>{color.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="product-details__quantity">
             <span>{t("productDetailsPage.quantity")}</span>
             <div>
@@ -238,9 +288,7 @@ export default function ProductDetailsPage() {
               <strong>{quantity}</strong>
               <button
                 aria-label={t("productDetailsPage.increaseQuantity")}
-                onClick={() =>
-                  setQuantity((value) => Math.min(product.stock || 1, value + 1))
-                }
+                onClick={handleIncreaseQuantity}
                 type="button"
               >
                 +

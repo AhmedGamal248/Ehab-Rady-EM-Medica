@@ -9,15 +9,14 @@ import {
 
 const CartContext = createContext();
 const CART_STORAGE_KEY = "cart";
-const CART_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const CART_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const STOCK_ERROR_MESSAGE = "The requested quantity exceeds available stock.";
 
-/* ── Persist helpers ─────────────────────────────────────────── */
 function loadCart() {
   try {
     const raw = localStorage.getItem(CART_STORAGE_KEY);
     if (!raw) return [];
     const { items, savedAt } = JSON.parse(raw);
-    // Expire stale cart after TTL
     if (!savedAt || Date.now() - savedAt > CART_TTL_MS) {
       localStorage.removeItem(CART_STORAGE_KEY);
       return [];
@@ -35,34 +34,62 @@ function saveCart(items) {
       JSON.stringify({ items, savedAt: Date.now() })
     );
   } catch {
-    // localStorage quota exceeded — silently fail
+    // localStorage can fail in private mode or when quota is exceeded.
   }
 }
 
-/* ── Provider ────────────────────────────────────────────────── */
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState(loadCart);
 
-  /* Persist on every change */
   useEffect(() => {
     saveCart(cart);
   }, [cart]);
 
-  const addToCart = useCallback((product, quantity = 1) => {
-    setCart((prev) => {
-      const exists = prev.find((item) => item._id === product._id);
-      if (exists) {
-        return prev.map((item) =>
+  const addToCart = useCallback((product, quantity = 1, options = {}) => {
+    const stock = Number(product.stock) || 0;
+    const safeQuantity = Math.max(1, Number(quantity) || 1);
+    const exists = cart.find((item) => item._id === product._id);
+    const nextQuantity = (exists?.quantity || 0) + safeQuantity;
+
+    if (nextQuantity > stock) {
+      return { ok: false, message: STOCK_ERROR_MESSAGE };
+    }
+
+    if (exists) {
+      setCart((prev) =>
+        prev.map((item) =>
           item._id === product._id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? {
+                ...item,
+                stock,
+                quantity: nextQuantity,
+                selectedColor: options.selectedColor || item.selectedColor,
+              }
             : item
-        );
-      }
-      // Only persist fields we actually need — strips Three.js objects, refs, etc.
-      const { _id, name, description, price, category, image, images, stock } = product;
-      return [...prev, { _id, name, description, price, category, image, images, stock, quantity }];
-    });
-  }, []);
+        )
+      );
+      return { ok: true };
+    }
+
+    const { _id, name, description, price, category, image, images, colors } = product;
+    setCart((prev) => [
+      ...prev,
+      {
+        _id,
+        name,
+        description,
+        price,
+        category,
+        image,
+        images,
+        colors,
+        stock,
+        selectedColor: options.selectedColor,
+        quantity: safeQuantity,
+      },
+    ]);
+    return { ok: true };
+  }, [cart]);
 
   const removeFromCart = useCallback(
     (id) => setCart((prev) => prev.filter((item) => item._id !== id)),
@@ -72,12 +99,21 @@ export const CartProvider = ({ children }) => {
   const updateQuantity = useCallback((id, quantity) => {
     if (quantity < 1) {
       setCart((prev) => prev.filter((item) => item._id !== id));
-      return;
+      return { ok: true };
     }
+
+    const item = cart.find((cartItem) => cartItem._id === id);
+    const stock = Number(item?.stock) || 0;
+
+    if (quantity > stock) {
+      return { ok: false, message: STOCK_ERROR_MESSAGE };
+    }
+
     setCart((prev) =>
-      prev.map((item) => (item._id === id ? { ...item, quantity } : item))
+      prev.map((cartItem) => (cartItem._id === id ? { ...cartItem, quantity } : cartItem))
     );
-  }, []);
+    return { ok: true };
+  }, [cart]);
 
   const clearCart = useCallback(() => setCart([]), []);
 
@@ -86,10 +122,7 @@ export const CartProvider = ({ children }) => {
     [cart]
   );
 
-  const cartCount = useMemo(
-    () => cart.reduce((sum, item) => sum + item.quantity, 0),
-    [cart]
-  );
+  const cartCount = useMemo(() => cart.length, [cart]);
 
   const value = useMemo(
     () => ({

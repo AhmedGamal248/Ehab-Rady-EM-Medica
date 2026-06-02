@@ -25,7 +25,11 @@ function MedicalProductCard({ product }) {
   const handleAddToCart = useCallback((e) => {
     e.stopPropagation();
     if (isOutOfStock) return;
-    addToCart(product);
+    const result = addToCart(product);
+    if (!result.ok) {
+      toast.error(result.message || t("cartPage.stockExceeded"));
+      return;
+    }
     toast.success(t("productCard.addedSuccess"));
   }, [addToCart, isOutOfStock, product, t]);
 
@@ -59,9 +63,9 @@ function MedicalProductCard({ product }) {
           ) : (
             <span
               className="product-card__stock"
-              aria-label={t("productCard.available")}
+              aria-label={t("productCard.inStock", { count: product.stock })}
             >
-              {t("productCard.available")}
+              {t("productCard.inStock", { count: product.stock })}
             </span>
           )}
         </span>

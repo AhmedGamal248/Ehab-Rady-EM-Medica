@@ -1071,8 +1071,10 @@ html[dir="rtl"] .input-shell select {
 .auth-form input,
 .order-form input,
 .order-form textarea,
+.order-form select,
 .admin-form input,
 .admin-form textarea,
+.admin-form select,
 .admin-table select {
   background: var(--bg);
   min-height: 52px;
@@ -1082,8 +1084,10 @@ html[dir="rtl"] .input-shell select {
 .auth-form input:focus,
 .order-form input:focus,
 .order-form textarea:focus,
+.order-form select:focus,
 .admin-form input:focus,
-.admin-form textarea:focus {
+.admin-form textarea:focus,
+.admin-form select:focus {
   border-color: var(--border-medium);
   box-shadow: 0 0 0 3px var(--primary-light);
 }
@@ -1100,6 +1104,96 @@ html[dir="rtl"] .input-shell select {
 /* ── Order Form ─────────────────────────────────────────────────────────────── */
 .order-form,
 .admin-form { padding: 26px; }
+.field-error {
+  color: var(--danger);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+.checkout-notice {
+  align-items: center;
+  background: var(--primary-light);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--primary);
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+}
+.product-details__colors {
+  display: grid;
+  gap: 10px;
+}
+.product-details__colors > span {
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+.product-details__colors > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.product-details__colors button {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: inline-flex;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+}
+.product-details__colors button.is-active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+.product-details__colors i {
+  border: 1px solid var(--border-medium);
+  border-radius: 50%;
+  display: inline-block;
+  height: 18px;
+  width: 18px;
+}
+.color-variations,
+.color-variations__list,
+.color-variation {
+  display: grid;
+  gap: 14px;
+}
+.color-variations {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 18px;
+}
+.color-variations__header,
+.color-variation__fields {
+  align-items: end;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+.color-variations__header small {
+  color: var(--text-secondary);
+  display: block;
+  font-weight: 500;
+  margin-top: 4px;
+}
+.color-variation {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px;
+}
+.color-variation__fields label {
+  flex: 1;
+}
+.color-variation__fields input[type="color"] {
+  min-width: 82px;
+  padding: 6px;
+}
 
 /* ── Admin ─────────────────────────────────────────────────────────────────── */
 .admin-page { display: grid; gap: 24px; }

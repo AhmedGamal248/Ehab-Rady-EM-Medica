@@ -2,6 +2,60 @@ const Joi = require("joi");
 
 const objectId = Joi.string().trim().hex().length(24);
 const imageField = Joi.string().trim().max(2048).allow("");
+const egyptianGovernorates = [
+  "Cairo",
+  "Giza",
+  "Alexandria",
+  "Dakahlia",
+  "Red Sea",
+  "Beheira",
+  "Fayoum",
+  "Gharbia",
+  "Ismailia",
+  "Menofia",
+  "Minya",
+  "Qaliubiya",
+  "New Valley",
+  "Suez",
+  "Aswan",
+  "Assiut",
+  "Beni Suef",
+  "Port Said",
+  "Damietta",
+  "Sharkia",
+  "South Sinai",
+  "Kafr El Sheikh",
+  "Matrouh",
+  "Luxor",
+  "Qena",
+  "North Sinai",
+  "Sohag",
+];
+const egyptianMobileSchema = Joi.string()
+  .trim()
+  .custom((value, helpers) => {
+    const normalized = value.replace(/[\s-]/g, "");
+    if (!/^(?:\+?20|0)?1[0125]\d{8}$/.test(normalized)) {
+      return helpers.error("string.pattern.base");
+    }
+
+    return normalized;
+  }, "Egyptian mobile validation")
+  .required()
+  .messages({
+    "string.pattern.base": "mobile number must be a valid Egyptian mobile number",
+  });
+const colorSchema = Joi.object({
+  name: Joi.string().trim().min(1).max(50).required(),
+  hex: Joi.string()
+    .trim()
+    .pattern(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
+    .required()
+    .messages({
+      "string.pattern.base": "color hex must be a valid hex color",
+    }),
+  images: Joi.array().items(imageField).max(10).default([]),
+});
 
 const paginationQuerySchema = Joi.object({
   search: Joi.string().trim().max(120),
@@ -53,6 +107,7 @@ const productCreateSchema = Joi.object({
   images: Joi.array().items(imageField).max(5).default([]),
   category: Joi.string().trim().min(2).max(120).required(),
   stock: Joi.number().integer().min(0).max(100000).default(0),
+  colors: Joi.array().items(colorSchema).max(20).default([]),
 });
 
 const productUpdateSchema = Joi.object({
@@ -63,26 +118,31 @@ const productUpdateSchema = Joi.object({
   images: Joi.array().items(imageField).max(5),
   category: Joi.string().trim().min(2).max(120),
   stock: Joi.number().integer().min(0).max(100000),
+  colors: Joi.array().items(colorSchema).max(20),
 }).min(1);
 
 const orderCreateSchema = Joi.object({
+  fullName: Joi.string().trim().min(2).max(120).required(),
+  email: Joi.string().trim().email().lowercase().max(255).allow("").optional(),
+  governorate: Joi.string()
+    .trim()
+    .valid(...egyptianGovernorates)
+    .required(),
+  city: Joi.string().trim().min(2).max(120).required(),
+  mobileNumber: egyptianMobileSchema,
   items: Joi.array()
     .items(
       Joi.object({
         product: objectId.required(),
         quantity: Joi.number().integer().min(1).max(99).required(),
+        color: Joi.object({
+          name: Joi.string().trim().min(1).max(50).required(),
+          hex: Joi.string().trim().max(9).allow(""),
+        }).optional(),
       })
     )
     .min(1)
     .required(),
-  address: Joi.string().trim().min(10).max(500).required(),
-  phone: Joi.string()
-    .trim()
-    .pattern(/^[0-9+\-\s()]{8,20}$/)
-    .required()
-    .messages({
-      "string.pattern.base": "phone must contain a valid phone number",
-    }),
 });
 
 const orderStatusSchema = Joi.object({
@@ -100,4 +160,5 @@ module.exports = {
   productUpdateSchema,
   orderCreateSchema,
   orderStatusSchema,
+  egyptianGovernorates,
 };
