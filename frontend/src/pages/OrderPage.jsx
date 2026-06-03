@@ -50,7 +50,7 @@ function isValidEgyptianMobile(value) {
 export default function OrderPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { cart, clearCart, total } = useCart();
+  const { cart, clearCart, total, refreshCartStock, applyInventoryUpdates } = useCart();
 
   const [form, setForm] = useState({
     fullName: "",
@@ -88,8 +88,18 @@ export default function OrderPage() {
       nextErrors.mobileNumber = t("orderPage.mobileInvalid");
     }
 
-    const overStockItem = cart.find((item) => item.quantity > (Number(item.stock) || 0));
-    if (overStockItem) {
+    const quantityByProduct = cart.reduce((acc, item) => {
+      acc[item._id] = (acc[item._id] || 0) + item.quantity;
+      return acc;
+    }, {});
+    const stockByProduct = cart.reduce((acc, item) => {
+      acc[item._id] = Number(item.stock) || 0;
+      return acc;
+    }, {});
+    const hasOverStock = Object.entries(quantityByProduct).some(
+      ([productId, quantity]) => quantity > stockByProduct[productId]
+    );
+    if (hasOverStock) {
       nextErrors.cart = t("cartPage.stockExceeded");
     }
 
@@ -104,6 +114,13 @@ export default function OrderPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const stockSync = await refreshCartStock();
+    if (!stockSync.ok) {
+      toast.error(t("orderPage.error"));
+      return;
+    }
+
     if (!validate()) return;
 
     try {
@@ -123,8 +140,13 @@ export default function OrderPage() {
         })),
       });
 
+      const payload = response.data?.data || response.data;
+      const order = payload?.order || payload;
+      const inventoryUpdates = payload?.inventoryUpdates || [];
+
+      applyInventoryUpdates(inventoryUpdates);
       clearCart();
-      setConfirmedOrder(response.data?.data || response.data);
+      setConfirmedOrder(order);
       toast.success(t("orderPage.success"));
     } catch (err) {
       const msg = err.response?.data?.message || t("orderPage.error");

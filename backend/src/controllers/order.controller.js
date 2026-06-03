@@ -1,95 +1,153 @@
 const Order = require("../models/order.model");
 const Product = require("../models/product.model");
+const cache = require("../config/cache");
 const { success, error } = require("../utils/response");
 
 const STOCK_ERROR_MESSAGE = "The requested quantity exceeds available stock.";
+const CANCELLED_STATUSES = new Set(["cancelled"]);
+const ACTIVE_STATUSES = new Set(["pending", "confirmed", "delivered"]);
 
 function calculateShippingCost(governorate) {
   return ["Cairo", "Giza"].includes(governorate) ? 60 : 100;
 }
 
+function normalizeColor(color) {
+  if (!color?.name) return undefined;
+  return {
+    name: color.name.trim(),
+    hex: color.hex || "",
+  };
+}
+
+function resolveItemImage(product, color) {
+  if (color?.name && Array.isArray(product.colors)) {
+    const variant = product.colors.find(
+      (entry) => entry.name?.trim().toLowerCase() === color.name.trim().toLowerCase()
+    );
+    if (variant?.images?.[0]) return variant.images[0];
+  }
+  return product.image || product.images?.[0] || "";
+}
+
+function getProductIdFromItem(item) {
+  return item.product?._id?.toString() || item.product.toString();
+}
+
+function aggregateQuantitiesByProduct(items) {
+  const totals = new Map();
+  items.forEach((item) => {
+    const productId = getProductIdFromItem(item);
+    totals.set(productId, (totals.get(productId) || 0) + item.quantity);
+  });
+  return totals;
+}
+
+async function decrementStock(quantityByProductId) {
+  const decremented = [];
+
+  for (const [productId, quantity] of quantityByProductId.entries()) {
+    const updatedProduct = await Product.findOneAndUpdate(
+      { _id: productId, stock: { $gte: quantity } },
+      { $inc: { stock: -quantity } },
+      { new: true }
+    ).select("_id stock");
+
+    if (!updatedProduct) {
+      await Promise.all(
+        decremented.map((entry) =>
+          Product.findByIdAndUpdate(entry.product, {
+            $inc: { stock: entry.quantity },
+          })
+        )
+      );
+      return { ok: false, decremented: [] };
+    }
+
+    decremented.push({ product: productId, quantity });
+  }
+
+  return { ok: true, decremented };
+}
+
+async function restoreStock(items) {
+  await Promise.all(
+    items.map((item) =>
+      Product.findByIdAndUpdate(item.product, {
+        $inc: { stock: item.quantity },
+      })
+    )
+  );
+}
+
+async function getInventorySnapshot(productIds) {
+  const products = await Product.find({ _id: { $in: productIds } })
+    .select("_id stock")
+    .lean();
+  return products.map((product) => ({
+    productId: product._id.toString(),
+    stock: product.stock,
+  }));
+}
+
 exports.createOrder = async (req, res, next) => {
   try {
-    const quantityByProductId = new Map();
-    const colorByProductId = new Map();
+    const requestItems = req.body.items.map((item) => ({
+      product: item.product.toString(),
+      quantity: item.quantity,
+      color: normalizeColor(item.color),
+    }));
 
-    req.body.items.forEach((item) => {
-      const key = item.product.toString();
-      const currentQuantity = quantityByProductId.get(key) || 0;
-      quantityByProductId.set(key, currentQuantity + item.quantity);
-      if (item.color && !colorByProductId.has(key)) {
-        colorByProductId.set(key, item.color);
-      }
-    });
-
+    const quantityByProductId = aggregateQuantitiesByProduct(requestItems);
     const productIds = Array.from(quantityByProductId.keys());
+
     const products = await Product.find({ _id: { $in: productIds } })
-      .select("name price stock image images category")
+      .select("name price stock image images category colors")
       .lean();
 
     if (products.length !== productIds.length) {
       return error(res, "One or more products were not found", 404);
     }
 
+    const productsById = new Map(
+      products.map((product) => [product._id.toString(), product])
+    );
+
     const unavailableItems = [];
-    const orderItems = [];
-    let subtotal = 0;
-
-    products.forEach((product) => {
-      const productId = product._id.toString();
-      const quantity = quantityByProductId.get(productId);
-
-      if (product.stock < quantity) {
+    for (const [productId, requestedQuantity] of quantityByProductId.entries()) {
+      const product = productsById.get(productId);
+      if (product.stock < requestedQuantity) {
         unavailableItems.push({
           productId,
           name: product.name,
           availableStock: product.stock,
-          requestedQuantity: quantity,
+          requestedQuantity,
         });
-        return;
       }
-
-      subtotal += product.price * quantity;
-      orderItems.push({
-        product: product._id,
-        quantity,
-        name: product.name,
-        price: product.price,
-        image: product.image || product.images?.[0] || "",
-        color: colorByProductId.get(productId),
-      });
-    });
-
-    if (unavailableItems.length > 0) {
-      return error(
-        res,
-        STOCK_ERROR_MESSAGE,
-        400,
-        unavailableItems
-      );
     }
 
-    const decrementedItems = [];
-    for (const item of orderItems) {
-      const updatedProduct = await Product.findOneAndUpdate(
-        { _id: item.product, stock: { $gte: item.quantity } },
-        { $inc: { stock: -item.quantity } },
-        { new: true }
-      ).select("_id");
+    if (unavailableItems.length > 0) {
+      return error(res, STOCK_ERROR_MESSAGE, 400, unavailableItems);
+    }
 
-      if (!updatedProduct) {
-        await Promise.all(
-          decrementedItems.map((decrementedItem) =>
-            Product.findByIdAndUpdate(decrementedItem.product, {
-              $inc: { stock: decrementedItem.quantity },
-            })
-          )
-        );
+    const orderItems = [];
+    let subtotal = 0;
 
-        return error(res, STOCK_ERROR_MESSAGE, 400);
-      }
+    for (const item of requestItems) {
+      const product = productsById.get(item.product);
+      subtotal += product.price * item.quantity;
+      orderItems.push({
+        product: product._id,
+        quantity: item.quantity,
+        name: product.name,
+        price: product.price,
+        image: resolveItemImage(product, item.color),
+        color: item.color,
+      });
+    }
 
-      decrementedItems.push(item);
+    const stockResult = await decrementStock(quantityByProductId);
+    if (!stockResult.ok) {
+      return error(res, STOCK_ERROR_MESSAGE, 400);
     }
 
     const shippingCost = calculateShippingCost(req.body.governorate);
@@ -113,21 +171,24 @@ exports.createOrder = async (req, res, next) => {
         total,
       });
     } catch (createErr) {
-      await Promise.all(
-        decrementedItems.map((decrementedItem) =>
-          Product.findByIdAndUpdate(decrementedItem.product, {
-            $inc: { stock: decrementedItem.quantity },
-          })
-        )
-      );
+      await restoreStock(stockResult.decremented);
       throw createErr;
     }
 
+    cache.flushAll();
+
     const createdOrder = await Order.findById(order._id)
-      .populate("items.product", "name price image category")
+      .populate("items.product", "name price image category stock")
       .lean();
 
-    success(res, createdOrder, "Order created successfully", 201);
+    const inventoryUpdates = await getInventorySnapshot(productIds);
+
+    success(
+      res,
+      { order: createdOrder, inventoryUpdates },
+      "Order created successfully",
+      201
+    );
   } catch (err) {
     next(err);
   }
@@ -179,19 +240,38 @@ exports.getOrderById = async (req, res, next) => {
 
 exports.updateOrderStatus = async (req, res, next) => {
   try {
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { status: req.body.status },
-      { new: true, runValidators: true }
-    );
-
-    if (!order) {
+    const existingOrder = await Order.findById(req.params.id).lean();
+    if (!existingOrder) {
       return error(res, "Order not found", 404);
     }
 
+    const previousStatus = existingOrder.status;
+    const nextStatus = req.body.status;
+
+    const wasCancelled = CANCELLED_STATUSES.has(previousStatus);
+    const willBeCancelled = CANCELLED_STATUSES.has(nextStatus);
+
+    if (!wasCancelled && willBeCancelled) {
+      await restoreStock(existingOrder.items);
+      cache.flushAll();
+    } else if (wasCancelled && ACTIVE_STATUSES.has(nextStatus)) {
+      const quantityByProductId = aggregateQuantitiesByProduct(existingOrder.items);
+      const stockResult = await decrementStock(quantityByProductId);
+      if (!stockResult.ok) {
+        return error(res, STOCK_ERROR_MESSAGE, 400);
+      }
+      cache.flushAll();
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status: nextStatus },
+      { new: true, runValidators: true }
+    );
+
     const updatedOrder = await Order.findById(order._id)
       .populate("user", "name email")
-      .populate("items.product", "name price image category")
+      .populate("items.product", "name price image category stock")
       .lean();
 
     success(res, updatedOrder, "Order status updated successfully");

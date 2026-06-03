@@ -14,6 +14,7 @@ import {
 } from "react-icons/md";
 import api from "../services/api";
 import { useCart } from "../context/CartContext";
+import { PRODUCT_STOCK_UPDATED_EVENT } from "../utils/cart";
 import {
   formatCurrency,
   getProductImage,
@@ -97,6 +98,44 @@ export default function ProductDetailsPage() {
       ignore = true;
     };
   }, [id, t]);
+
+  useEffect(() => {
+    const handleStockUpdate = (event) => {
+      const update = event.detail?.updates?.find(
+        (entry) => String(entry.productId) === String(id)
+      );
+      if (update) {
+        setProduct((current) =>
+          current ? { ...current, stock: Number(update.stock) || 0 } : current
+        );
+      }
+    };
+
+    window.addEventListener(PRODUCT_STOCK_UPDATED_EVENT, handleStockUpdate);
+    return () => {
+      window.removeEventListener(PRODUCT_STOCK_UPDATED_EVENT, handleStockUpdate);
+    };
+  }, [id]);
+
+  useEffect(() => {
+    const refreshStockOnVisible = async () => {
+      if (document.visibilityState !== "visible" || !id) return;
+      try {
+        const response = await api.get(`/products/${id}`, {
+          params: { _ts: Date.now() },
+        });
+        const nextProduct = getSingleProductPayload(response);
+        if (nextProduct) {
+          setProduct((current) => (current ? { ...current, stock: nextProduct.stock } : nextProduct));
+        }
+      } catch {
+        // Keep current product state if refresh fails.
+      }
+    };
+
+    document.addEventListener("visibilitychange", refreshStockOnVisible);
+    return () => document.removeEventListener("visibilitychange", refreshStockOnVisible);
+  }, [id]);
 
   const availableColors = useMemo(
     () => (product?.colors || []).filter((color) => color.name),

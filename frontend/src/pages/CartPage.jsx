@@ -18,8 +18,8 @@ export default function CartPage() {
     navigate("/order");
   };
 
-  const handleUpdateQuantity = (id, quantity) => {
-    const result = updateQuantity(id, quantity);
+  const handleUpdateQuantity = (lineKey, quantity) => {
+    const result = updateQuantity(lineKey, quantity);
     if (!result?.ok) {
       toast.error(result.message || t("cartPage.stockExceeded"));
     }
@@ -52,7 +52,7 @@ export default function CartPage() {
       <section className="container section cart-layout">
         <div className="cart-items">
           {cart.map((item) => (
-            <article className="cart-item" key={item._id}>
+            <article className="cart-item" key={item.lineKey}>
               <img
                 alt={item.name}
                 onError={handleProductImageError}
@@ -62,6 +62,11 @@ export default function CartPage() {
               <div className="cart-item__info">
                 <span className="eyebrow">{item.category}</span>
                 <h2>{item.name}</h2>
+                {item.selectedColor?.name && (
+                  <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)" }}>
+                    {t("productDetailsPage.colors")}: {item.selectedColor.name}
+                  </p>
+                )}
                 <p>{formatCurrency(item.price)}</p>
                 <small>{t("productCard.inStock", { count: item.stock || 0 })}</small>
               </div>
@@ -70,7 +75,7 @@ export default function CartPage() {
                 <div className="stepper">
                   <button
                     aria-label={t("cartPage.decreaseQuantity")}
-                    onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)}
+                    onClick={() => handleUpdateQuantity(item.lineKey, item.quantity - 1)}
                     type="button"
                   >
                     -
@@ -78,7 +83,7 @@ export default function CartPage() {
                   <strong>{item.quantity}</strong>
                   <button
                     aria-label={t("cartPage.increaseQuantity")}
-                    onClick={() => handleUpdateQuantity(item._id, item.quantity + 1)}
+                    onClick={() => handleUpdateQuantity(item.lineKey, item.quantity + 1)}
                     type="button"
                   >
                     +
@@ -88,7 +93,7 @@ export default function CartPage() {
                 <button
                   aria-label={t("cartPage.removeItem")}
                   className="icon-button"
-                  onClick={() => removeFromCart(item._id)}
+                  onClick={() => removeFromCart(item.lineKey)}
                   type="button"
                 >
                   <MdDelete size={18} />

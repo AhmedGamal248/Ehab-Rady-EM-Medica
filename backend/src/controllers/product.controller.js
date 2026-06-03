@@ -58,15 +58,20 @@ exports.getAllProducts = async (req, res, next) => {
 
 exports.getProduct = async (req, res, next) => {
   try {
+    const bypassCache = Boolean(req.query._ts || req.query.refresh);
     const cacheKey = `product_${req.params.id}`;
-    const cached = cache.get(cacheKey);
-    if (cached) return success(res, cached);
+    if (!bypassCache) {
+      const cached = cache.get(cacheKey);
+      if (cached) return success(res, cached);
+    }
 
     const product = await Product.findById(req.params.id).lean();
     if (!product) return error(res, "Product not found", 404);
 
-    cache.set(cacheKey, product);
-    res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+    if (!bypassCache) {
+      cache.set(cacheKey, product);
+    }
+    res.set("Cache-Control", bypassCache ? "no-store" : "public, max-age=60, stale-while-revalidate=300");
     success(res, product);
   } catch (err) {
     next(err);
