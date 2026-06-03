@@ -1,9 +1,11 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { MdAddShoppingCart } from "react-icons/md";
 import { useCart } from "../context/CartContext";
+import ColorSelectModal from "./ColorSelectModal";
+import { getStockMessage, getStockTier } from "../utils/stockMessages";
 import {
   formatCurrency,
   getProductImage,
@@ -15,23 +17,45 @@ function MedicalProductCard({ product }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const [showColorModal, setShowColorModal] = useState(false);
 
   const isOutOfStock = product.stock <= 0;
+  const availableColors = (product?.colors || []).filter((c) => c.name);
 
   const handleOpenProduct = useCallback(() => {
     navigate(`/products/${product._id}`);
   }, [navigate, product._id]);
 
-  const handleAddToCart = useCallback((e) => {
-    e.stopPropagation();
-    if (isOutOfStock) return;
-    const result = addToCart(product);
-    if (!result.ok) {
-      toast.error(result.message || t("cartPage.stockExceeded"));
-      return;
-    }
-    toast.success(t("productCard.addedSuccess"));
-  }, [addToCart, isOutOfStock, product, t]);
+  const performAddToCart = useCallback(
+    (selectedColor) => {
+      const result = addToCart(product, 1, { selectedColor });
+      if (!result.ok) {
+        toast.error(result.message || t("cartPage.stockExceeded"));
+        setShowColorModal(false);
+        return;
+      }
+      toast.success(t("productCard.addedSuccess"));
+      setShowColorModal(false);
+    },
+    [addToCart, product, t]
+  );
+
+  const handleAddToCart = useCallback(
+    (e) => {
+      e.stopPropagation();
+      if (isOutOfStock) return;
+
+      // If product has colors, show modal
+      if (availableColors.length > 0) {
+        setShowColorModal(true);
+        return;
+      }
+
+      // If no colors, add directly
+      performAddToCart(undefined);
+    },
+    [isOutOfStock, availableColors.length, performAddToCart]
+  );
 
   return (
     <article className="product-card" aria-label={product.name}>
@@ -53,21 +77,18 @@ function MedicalProductCard({ product }) {
             height={300}
           />
 
-          {isOutOfStock ? (
-            <span
-              className="product-card__stock product-card__stock--empty"
-              aria-label={t("productCard.outOfStock")}
-            >
-              {t("productCard.outOfStock")}
-            </span>
-          ) : (
-            <span
-              className="product-card__stock"
-              aria-label={t("productCard.inStock", { count: product.stock })}
-            >
-              {t("productCard.inStock", { count: product.stock })}
-            </span>
-          )}
+          {(() => {
+            const tier = getStockTier(product.stock);
+            const message = getStockMessage(product.stock, t);
+            return (
+              <span
+                className={`product-card__stock product-card__stock--${tier}`}
+                aria-label={message}
+              >
+                {message}
+              </span>
+            );
+          })()}
         </span>
 
         <span className="product-card__body">
@@ -100,6 +121,13 @@ function MedicalProductCard({ product }) {
           </span>
         </button>
       </div>
+
+      <ColorSelectModal
+        product={product}
+        isOpen={showColorModal}
+        onClose={() => setShowColorModal(false)}
+        onConfirm={(selectedColor) => performAddToCart(selectedColor)}
+      />
     </article>
   );
 }

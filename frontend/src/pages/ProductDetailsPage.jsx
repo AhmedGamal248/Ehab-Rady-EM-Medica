@@ -15,6 +15,7 @@ import {
 import api from "../services/api";
 import { useCart } from "../context/CartContext";
 import { PRODUCT_STOCK_UPDATED_EVENT } from "../utils/cart";
+import { getDetailPageStockMessage, getStockTier } from "../utils/stockMessages";
 import {
   formatCurrency,
   getProductImage,
@@ -241,15 +242,17 @@ export default function ProductDetailsPage() {
               fetchPriority="high"
             />
             
-            <span
-              className={`product-details__availability ${
-                product.stock > 0 ? "is-available" : "is-unavailable"
-              }`}
-            >
-              {product.stock > 0
-                ? t("productDetailsPage.availableWithCount", { count: product.stock })
-                : t("productDetailsPage.unavailable")}
-            </span>
+            {(() => {
+              const tier = getStockTier(product.stock);
+              const message = getDetailPageStockMessage(product.stock, t);
+              return (
+                <span
+                  className={`product-details__availability product-details__availability--${tier}`}
+                >
+                  {message}
+                </span>
+              );
+            })()}
           </div>
 
           {images.length > 1 ? (

@@ -217,11 +217,11 @@
   "productCard": {
     "addedSuccess": "تمت إضافة المنتج إلى السلة",
     "certified": "معتمد",
-    "outOfStock": "نفد المخزون",
-    "available": "متاح",
+    "outOfStock": "غير متوفر",
+    "inStockLow": "باقي {{count}} قطع فقط",
+    "inStockAvailable": "متوفر",
     "unavailable": "غير متاح",
-    "addToCart": "أضف إلى السلة",
-    "inStock": "???????: {{count}}"
+    "addToCart": "أضف إلى السلة"
   },
   "productDetailsPage": {
     "loading": "جاري تحميل تفاصيل المنتج...",
@@ -229,8 +229,9 @@
     "notFound": "المنتج غير موجود.",
     "backToProducts": "العودة للمنتجات",
     "verified": "منتج موثوق",
-    "availableWithCount": "متاح ({{count}} قطعة)",
-    "unavailable": "غير متاح",
+    "unavailable": "غير متوفر",
+    "lowStockWarning": "باقي {{count}} قطع فقط",
+    "available": "متوفر",
     "finalPrice": "السعر",
     "quantity": "الكمية",
     "decreaseQuantity": "تقليل الكمية",
@@ -248,8 +249,8 @@
     "noRelated": "لا توجد منتجات مشابهة معروضة حاليًا لهذه الفئة.",
     "addedSuccess": "تمت إضافة {{count}} قطعة إلى السلة",
     "thumbnailAlt": "{{name}} صورة {{index}}",
-    "colors": "???????",
-    "selectColor": "?????? {{color}}"
+    "colors": "الألوان",
+    "selectColor": "اختر {{color}}"
   },
   "cartPage": {
     "emptyTitle": "السلة فارغة",
@@ -264,7 +265,7 @@
     "removeItem": "حذف العنصر",
     "decreaseQuantity": "تقليل الكمية",
     "increaseQuantity": "زيادة الكمية",
-    "stockExceeded": "?????? ???????? ?????? ??????? ??????."
+    "stockExceeded": "الكمية المطلوبة تتجاوز المخزون المتاح."
   },
   "loginPage": {
     "success": "تم تسجيل الدخول بنجاح",

@@ -217,9 +217,9 @@
   "productCard": {
     "addedSuccess": "Product added to cart",
     "certified": "Certified",
-    "outOfStock": "Out of stock",
-    "available": "Available",
-    "inStock": "In Stock: {{count}}",
+    "outOfStock": "Product is unavailable",
+    "inStockLow": "Only {{count}} items left",
+    "inStockAvailable": "Available",
     "unavailable": "Unavailable",
     "addToCart": "Add to Cart"
   },
@@ -229,8 +229,9 @@
     "notFound": "Product not found.",
     "backToProducts": "Back to Products",
     "verified": "Trusted product",
-    "availableWithCount": "Available ({{count}} units)",
-    "unavailable": "Unavailable",
+    "unavailable": "Product is unavailable",
+    "lowStockWarning": "Only {{count}} items left",
+    "available": "Available",
     "finalPrice": "price",
     "quantity": "Quantity",
     "decreaseQuantity": "Decrease quantity",
@@ -250,6 +251,12 @@
     "noRelated": "No related products are currently available in this category.",
     "addedSuccess": "{{count}} item(s) added to cart",
     "thumbnailAlt": "{{name}} image {{index}}"
+  },
+  "colorModal": {
+    "title": "Select Color",
+    "selectPrompt": "Please select a color to continue",
+    "cancel": "Cancel",
+    "confirm": "Add to Cart"
   },
   "cartPage": {
     "emptyTitle": "Your cart is empty",

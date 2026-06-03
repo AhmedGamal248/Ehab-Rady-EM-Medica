@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { MdDelete, MdLocalShipping, MdShoppingCart } from "react-icons/md";
 import { useCart } from "../context/CartContext";
+import { getStockMessage } from "../utils/stockMessages";
 import {
   formatCurrency,
   getProductImage,
@@ -68,7 +69,7 @@ export default function CartPage() {
                   </p>
                 )}
                 <p>{formatCurrency(item.price)}</p>
-                <small>{t("productCard.inStock", { count: item.stock || 0 })}</small>
+                <small>{getStockMessage(item.stock || 0, t)}</small>
               </div>
 
               <div className="cart-item__actions">
