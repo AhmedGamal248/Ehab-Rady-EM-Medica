@@ -826,10 +826,6 @@ export default function AdminDashboardPage() {
       />
 
       <section className="container section admin-page">
-        <div className="section-heading section-heading--compact">
-          <span className="eyebrow">{t("adminDashboardPage.eyebrow")}</span>
-          <h1>{t("adminDashboardPage.title")}</h1>
-        </div>
 
         {/* Stats */}
         <div className="admin-stats" role="list" aria-label="Dashboard statistics">
