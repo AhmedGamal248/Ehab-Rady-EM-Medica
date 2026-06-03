@@ -340,7 +340,7 @@ html[lang="ar"] .eyebrow, html[lang="ar"] .eyebrow--solid {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  justify-content: center;
+  justify-content: flex-end;
 }
 .site-link,
 .theme-toggle,
@@ -1856,10 +1856,6 @@ html[dir="rtl"] .signal-rail span { animation-name: pulseSignalRtl; }
     inset-inline-end: 24px;
     inset-inline-start: 24px;
     top: calc(100% + 10px);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: auto;
   }
   .site-header__nav.is-open { display: grid; }
   .site-link,.theme-toggle,.site-user { justify-content: center; width: 100%; }
@@ -2285,466 +2281,134 @@ h1,h2,h3 {
 }
 /* Applied via inline style — no class needed */
 
-/* ── Stock Tier Classes ──────────────────────────────────────── */
-/* Product Card Stock Display Tiers */
-.product-card__stock--available {
-  background: rgba(19, 138, 61, 0.84);
-  color: #fff;
-}
-.product-card__stock--low-stock {
-  background: rgba(201, 124, 10, 0.84);
-  color: #fff;
-}
-.product-card__stock--out-of-stock {
-  background: rgba(212, 37, 37, 0.88);
-  color: #fff;
-}
 
-/* Product Details Stock Display Tiers */
-.product-details__availability--available {
-  background: rgba(19, 138, 61, 0.88);
-}
-.product-details__availability--low-stock {
-  background: rgba(201, 124, 10, 0.88);
-}
-.product-details__availability--out-of-stock {
-  background: rgba(212, 37, 37, 0.88);
-}
-
-/* ── Color Select Modal ──────────────────────────────────────── */
-.color-modal__backdrop {
-  animation: fadeIn 150ms var(--ease-out);
-  background: rgba(0, 0, 0, 0.55);
-  inset: 0;
-  position: fixed;
-  z-index: 999;
-}
-
-.color-modal {
-  animation: dialogIn 220ms var(--ease-out);
-  background: var(--surface);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-xl);
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  left: 50%;
-  max-width: 95vw;
-  padding: 28px;
-  position: fixed;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 420px;
-  z-index: 1000;
-}
-
-.color-modal__header {
-  align-items: center;
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.color-modal__title {
-  font-size: 1.28rem;
-  font-weight: 700;
-  margin: 0;
-  color: var(--text-primary);
-}
-
-.color-modal__close {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  font-size: 1.6rem;
-  line-height: 1;
-  padding: 4px;
-  transition: color var(--dur-fast) ease, background var(--dur-fast) ease;
-  border-radius: var(--r-sm);
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.color-modal__close:hover {
-  background: var(--bg-strong);
-  color: var(--text-primary);
-}
-
-.color-modal__body {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.color-modal__prompt {
-  color: var(--text-secondary);
-  font-size: 0.92rem;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.color-modal__colors {
-  display: flex;
-  flex-direction: column;
-}
 /* ═══════════════════════════════════════════════════════════════════════════
-   ColorSelectModal — Concept B
-   Bottom Sheet (mobile) + Popover (desktop)
-   Tokens inherit from the project's root CSS variables.
+   CONCEPT A — Inline Color Swatches
+   Replace the entire old "Color Select Modal" block in index.css with this.
+   All .color-modal__* and .cs-* rules from the previous implementation
+   should be removed. Only these new .product-card__swatch* rules are needed.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Shared chip atoms ───────────────────────────────────────────────────── */
-.cs-chips {
+/* ── Swatch container ────────────────────────────────────────────────────── */
+.product-card__swatches {
+  display: grid;
+  gap: 5px;
+  /* sits between .product-card__body and .product-card__footer */
+}
+
+/* ── Swatch row: dots + overflow pill ────────────────────────────────────── */
+.product-card__swatch-row {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 5px;
 }
 
-.cs-chip {
+/* ── Individual swatch button ────────────────────────────────────────────── */
+.product-card__swatch {
   align-items: center;
-  background: var(--bg-subtle);
-  border: 1.5px solid var(--border);
-  border-radius: var(--r-pill);
-  color: var(--text-primary);
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 50%;
   cursor: pointer;
   display: inline-flex;
-  font-size: 0.875rem;
-  font-weight: 500;
-  gap: 6px;
-  padding: 7px 13px 7px 9px;
+  flex-shrink: 0;
+  justify-content: center;
+  /* padding creates the selection ring gap */
+  padding: 2px;
   transition:
-    border-color var(--dur-fast) ease,
-    background var(--dur-fast) ease,
+    border-color var(--dur-fast) var(--ease-out),
     transform var(--dur-fast) var(--ease-spring),
     box-shadow var(--dur-fast) ease;
-  white-space: nowrap;
 }
 
-.cs-chip:hover {
-  border-color: var(--border-medium);
-  background: var(--surface-solid);
-  transform: translateY(-1px);
+.product-card__swatch:hover {
+  transform: scale(1.18);
 }
 
-.cs-chip.is-active {
+.product-card__swatch:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.product-card__swatch.is-active {
   border-color: var(--primary);
-  background: var(--primary-light);
-  color: var(--primary-dark);
-  box-shadow: 0 0 0 3px rgba(13, 110, 140, 0.10);
+  box-shadow: 0 0 0 2px var(--primary-light);
 }
 
-:root[data-theme="dark"] .cs-chip {
-  background: rgba(200, 228, 242, 0.06);
-}
-:root[data-theme="dark"] .cs-chip:hover {
-  background: rgba(94, 207, 240, 0.10);
-}
-:root[data-theme="dark"] .cs-chip.is-active {
-  background: rgba(94, 207, 240, 0.14);
-  color: var(--primary-dark);
-}
-
-.cs-chip__dot {
-  border: 1.5px solid rgba(0, 0, 0, 0.12);
+/* ── Color dot inside the button ─────────────────────────────────────────── */
+.product-card__swatch-dot {
+  border: 1.5px solid rgba(0, 0, 0, 0.10);
   border-radius: 50%;
   display: block;
+  height: 18px;
+  width: 18px;
   flex-shrink: 0;
-  height: 14px;
-  width: 14px;
-}
-:root[data-theme="dark"] .cs-chip__dot {
-  border-color: rgba(255, 255, 255, 0.18);
 }
 
-.cs-chip__name {
-  line-height: 1;
+:root[data-theme="dark"] .product-card__swatch-dot {
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
-.cs-chip__check {
-  color: var(--primary);
-  flex-shrink: 0;
-  margin-inline-start: 2px;
-}
-
-/* ── Shared buttons ──────────────────────────────────────────────────────── */
-.cs-btn {
+/* ── Overflow pill (+N) ──────────────────────────────────────────────────── */
+.product-card__swatch-overflow {
   align-items: center;
+  background: var(--bg-strong);
+  border: 1px solid var(--border-medium);
   border-radius: var(--r-pill);
+  color: var(--primary);
   cursor: pointer;
   display: inline-flex;
-  font-size: 0.9rem;
-  font-weight: 600;
-  gap: 6px;
+  font-size: 0.70rem;
+  font-weight: 700;
+  height: 22px;
   justify-content: center;
-  min-height: 44px;
-  padding: 0 22px;
+  min-width: 28px;
+  padding: 0 6px;
   transition:
     background var(--dur-fast) ease,
     border-color var(--dur-fast) ease,
-    transform var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out);
-}
-.cs-btn:active { transform: scale(0.97); transition-duration: var(--dur-fast); }
-
-.cs-btn--primary {
-  background: var(--primary);
-  border: none;
-  box-shadow: 0 4px 14px var(--primary-glow);
-  color: #fff;
-}
-.cs-btn--primary:hover {
-  background: var(--primary-dark);
-  box-shadow: 0 6px 20px var(--primary-glow);
-  transform: translateY(-1px);
+    transform var(--dur-fast) var(--ease-spring);
 }
 
-.cs-btn--ghost {
-  background: transparent;
-  border: 1px solid var(--border-medium);
-  color: var(--text-secondary);
-}
-.cs-btn--ghost:hover {
-  background: var(--bg-strong);
-  border-color: var(--border-strong);
-  color: var(--text-primary);
+.product-card__swatch-overflow:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  transform: scale(1.06);
 }
 
-.cs-btn--full {
-  width: 100%;
-  min-height: 52px;
-  font-size: 1rem;
-  border-radius: var(--r-lg);
+:root[data-theme="dark"] .product-card__swatch-overflow {
+  background: rgba(94, 207, 240, 0.08);
+  border-color: var(--border-medium);
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   MOBILE — Bottom Sheet
-   ══════════════════════════════════════════════════════════════════════════ */
-
-/* Backdrop */
-.cs-overlay {
-  background: rgba(5, 20, 30, 0);
-  bottom: 0;
-  left: 0;
-  position: fixed;
-  right: 0;
-  top: 0;
-  transition: background var(--dur-slow) ease;
-  z-index: 400;
-  /* pointer-events off until open so layout events fall through */
-  pointer-events: none;
-}
-.cs-overlay.is-open {
-  background: rgba(5, 20, 30, 0.48);
-  pointer-events: all;
+:root[data-theme="dark"] .product-card__swatch-overflow:hover {
+  background: rgba(94, 207, 240, 0.18);
 }
 
-/* Sheet panel */
-.cs-sheet {
-  background: var(--surface-solid);
-  border-radius: 20px 20px 0 0;
-  bottom: 0;
-  box-shadow: var(--shadow-xl);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  left: 0;
-  max-height: 82dvh;          /* leaves room to see the product behind */
-  overflow-y: auto;
-  padding: 12px 20px 28px;
-  position: fixed;
-  right: 0;
-  /* Start below viewport, animate up */
-  transform: translateY(100%);
-  transition: transform var(--dur-slow) var(--ease-out);
-  z-index: 401;
-  /* Safe area for notched phones */
-  padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
-  scrollbar-width: none;
-}
-.cs-sheet::-webkit-scrollbar { display: none; }
-.cs-sheet.is-open { transform: translateY(0); }
-
-/* Drag handle */
-.cs-sheet__handle {
-  background: var(--border-medium);
-  border-radius: 99px;
-  height: 4px;
-  margin: 0 auto 4px;
-  width: 36px;
-  flex-shrink: 0;
-}
-
-/* Header row */
-.cs-sheet__header {
-  align-items: center;
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-}
-
-.cs-sheet__title {
-  color: var(--text-primary);
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.cs-sheet__close {
-  align-items: center;
-  background: var(--bg-strong);
-  border: none;
-  border-radius: 50%;
-  color: var(--text-secondary);
-  cursor: pointer;
-  display: flex;
-  flex-shrink: 0;
-  height: 34px;
-  justify-content: center;
-  transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
-  width: 34px;
-}
-.cs-sheet__close:hover {
-  background: var(--border);
-  color: var(--text-primary);
-}
-
-/* Product context */
-.cs-sheet__product-name {
+/* ── Selected color label ────────────────────────────────────────────────── */
+.product-card__swatch-label {
   color: var(--text-muted);
-  font-size: 0.82rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  margin-top: -8px;
-}
-
-/* Chip grid inside sheet — larger touch targets */
-.cs-chips--sheet .cs-chip {
-  font-size: 0.9rem;
-  min-height: 40px;
-  padding: 8px 15px 8px 10px;
-}
-.cs-chips--sheet .cs-chip__dot {
-  height: 16px;
-  width: 16px;
-}
-
-/* Selected preview bar */
-.cs-sheet__preview {
-  align-items: center;
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  display: flex;
-  gap: 10px;
-  padding: 10px 14px;
-}
-.cs-sheet__preview-swatch {
-  border: 1.5px solid rgba(0, 0, 0, 0.12);
-  border-radius: 50%;
-  display: block;
-  flex-shrink: 0;
-  height: 20px;
-  width: 20px;
-}
-:root[data-theme="dark"] .cs-sheet__preview-swatch {
-  border-color: rgba(255, 255, 255, 0.18);
-}
-.cs-sheet__preview-label {
-  color: var(--text-primary);
-  font-size: 0.92rem;
+  font-size: 0.74rem;
   font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  min-height: 11px; /* prevent layout shift when label appears */
+  display: block;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   DESKTOP — Popover
-   ══════════════════════════════════════════════════════════════════════════ */
-.cs-popover {
-  background: var(--surface-solid);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  position: absolute;
-  z-index: 400;
-  /* Entry animation */
-  animation: cs-popover-in var(--dur-base) var(--ease-out) both;
-}
-
-@keyframes cs-popover-in {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Small upward arrow */
-.cs-popover__arrow {
-  background: var(--surface-solid);
-  border-left: 1px solid var(--border-medium);
-  border-top: 1px solid var(--border-medium);
-  height: 10px;
-  position: absolute;
-  top: -6px;
-  left: 20px;
-  transform: rotate(45deg);
-  width: 10px;
-}
-html[dir="rtl"] .cs-popover__arrow { left: auto; right: 20px; }
-
-.cs-popover__prompt {
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-  line-height: 1.4;
-  margin: 0;
-}
-
-.cs-popover .cs-chips { gap: 6px; }
-.cs-popover .cs-chip  { font-size: 0.82rem; padding: 5px 11px 5px 8px; min-height: 32px; }
-.cs-popover .cs-chip__dot { height: 12px; width: 12px; }
-
-.cs-popover__footer {
-  border-top: 1px solid var(--border);
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  padding-top: 12px;
-}
-.cs-popover__footer .cs-btn { min-height: 36px; font-size: 0.84rem; padding: 0 16px; }
-
-/* ══════════════════════════════════════════════════════════════════════════
-   RESPONSIVE OVERRIDES
-   ══════════════════════════════════════════════════════════════════════════ */
-
-/* Tablet: sheet max-width, centered */
-@media (min-width: 480px) and (max-width: 767px) {
-  .cs-sheet {
-    border-radius: 20px 20px 0 0;
-    left: 50%;
-    max-width: 480px;
-    right: auto;
-    transform: translateX(-50%) translateY(100%);
+/* ── Responsive: mobile ──────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .product-card__swatch-dot {
+    height: 20px;
+    width: 20px;
   }
-  .cs-sheet.is-open { transform: translateX(-50%) translateY(0); }
+
+  .product-card__swatch-overflow {
+    height: 24px;
+    min-width: 30px;
+    font-size: 0.72rem;
+  }
 }
 
-/* Small mobile: tighter padding */
-@media (max-width: 375px) {
-  .cs-sheet { padding: 10px 16px 24px; gap: 14px; }
-  .cs-sheet__title { font-size: 1rem; }
-  .cs-chips--sheet .cs-chip { font-size: 0.85rem; padding: 7px 12px 7px 9px; }
-}
-
-/* ── RTL / Arabic support ─────────────────────────────────────────────────
-   All gap, padding-inline, and flex directions use logical properties so
-   RTL is handled automatically. Explicit overrides only where needed.      */
-html[dir="rtl"] .cs-sheet__header  { flex-direction: row-reverse; }
-html[dir="rtl"] .cs-popover__footer { flex-direction: row-reverse; }
-html[dir="rtl"] .cs-sheet__preview  { flex-direction: row-reverse; }
+/* ── RTL: no changes needed — flexbox handles direction automatically ─────── */
