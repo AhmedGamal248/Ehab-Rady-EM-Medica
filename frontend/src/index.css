@@ -51,11 +51,11 @@
   --shadow-xl:       0 28px 70px rgba(14,44,62,0.13);
 
   /* Radii */
-  --r-sm:  8px;
-  --r-md:  12px;
-  --r-lg:  16px;
-  --r-xl:  22px;
-  --r-pill:666px;
+  --r-sm:  0.4rem;
+  --r-md:  0.4rem;
+  --r-lg:  0.4rem;
+  --r-xl:   0.4rem;
+  --r-pill: 0.4rem;
 
   /* Transitions */
   --ease-out:    cubic-bezier(0.22,1,0.36,1);
