@@ -2,7 +2,7 @@ import axios from "axios";
 import i18n from "../i18n";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://ehab-rady-em-medica-hnku.vercel.app/api",
+  baseURL: import.meta.env.VITE_API_URL || "https://ehab-rady-em-medica-ozlp.vercel.app",
   timeout: 15000, // 15s — prevent hanging requests
 });
 
